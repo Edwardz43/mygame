@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        
+        #container {
+            height: 980px;
+            display: block;
+            position: relative;
+        }
+
+        #container::after {
+            content: "";
+            opacity: .65;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            position: absolute;
+            z-index: -1;
+            background-color: aqua;
+            background-image: url("/static/img/bg.jpg");
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .gameResult {
+            margin: 0 0 0 0;
+        }
+
+        .dice {
+            width: 60px;
+            height: 60px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <!-- <button id="connect">Connect</button> -->
+        <div class="gameResult">
+            <span>Run</span>
+            <div class="run"></div>
+            <img class="dice" src="/static/img/game/dice/00.jpg" />
+            <img class="dice" src="/static/img/game/dice/00.jpg" />
+            <img class="dice" src="/static/img/game/dice/00.jpg" />
+        </div>
+    </div>
+    <script src="/static/js/handler.js"></script>
+</body>
+
+</html>
