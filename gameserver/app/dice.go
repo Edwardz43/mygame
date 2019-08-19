@@ -8,6 +8,7 @@ import (
 
 var run = 1
 
+// GameResult ...
 type GameResult struct {
 	Run int `json:"run"`
 	D1  int `json:"d1"`
@@ -15,23 +16,29 @@ type GameResult struct {
 	D3  int `json:"d3"`
 }
 
+// StartGame ...
 func StartGame(result chan *GameResult) {
-	t := time.NewTicker(time.Second * 30)
 	log.Println("Start Game")
-	for {
-		select {
-		case <-t.C:
-			log.Println("New Game")
-			r := NewGame()
-			// log.Println(r)
-			result <- r
-		default:
-			//
-		}
+	// t := time.NewTicker(time.Second * 30)
+	// for {
+	// 	select {
+	// 	case <-t.C:
+	// 		log.Println("New Game")
+	// 		r := NewGame()
+	// 		// log.Println(r)
+	// 		result <- r
+	// 	default:
+	// 		//
+	// 	}
+	// }
+	for range time.Tick(time.Second * 10) {
+		log.Println("New Game")
+		r := NewGame()
+		result <- r
 	}
-
 }
 
+// NewGame ...
 func NewGame() *GameResult {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	gr := new(GameResult)
