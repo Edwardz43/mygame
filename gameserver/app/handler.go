@@ -27,12 +27,13 @@ var hub *Hub
 func serveWebsocket(c *gin.Context) {
 	// flag.Parse()
 	conn, err := upGrader.Upgrade(c.Writer, c.Request, nil)
-	if err != nil {
-		return
+	errHandle(err)
+	client := &Client{
+		ID:   1,
+		hub:  hub,
+		conn: conn,
+		send: make(chan []byte, 256),
 	}
-	// defer conn.Close()
-
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in

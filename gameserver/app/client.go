@@ -34,6 +34,7 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
+// Data ...
 type Data struct {
 	Event   string `json:"event"`
 	Message string `json:"message"`
@@ -41,6 +42,8 @@ type Data struct {
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
+	ID int64
+
 	hub *Hub
 
 	// The websocket connection.
@@ -92,9 +95,7 @@ func (c *Client) readPump() {
 		log.Printf("[%v]", string(message))
 		d := new(Data)
 		err = json.Unmarshal(message, &d)
-		if err != nil {
-			log.Panicln(err)
-		}
+		errHandle(err)
 
 		// switch d.Event {
 		// case "201":
