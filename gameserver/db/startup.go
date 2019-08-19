@@ -24,7 +24,7 @@ func init() {
 }
 
 // Connect ...
-func Connect() {
+func Connect() *sql.DB {
 	dbHost := viper.GetString(`database.host`)
 	dbPort := viper.GetString(`database.port`)
 	dbUser := viper.GetString(`database.user`)
@@ -45,12 +45,13 @@ func Connect() {
 		os.Exit(1)
 	}
 
-	defer func() {
-		err := dbConn.Close()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
+	// defer func() {
+	// 	err := dbConn.Close()
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }()
 
+	return dbConn
 	// TODO
 }
