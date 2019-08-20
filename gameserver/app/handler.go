@@ -1,8 +1,7 @@
-package main
+package gameserver
 
 import (
 	"encoding/json"
-	"flag"
 	"log"
 	"net/http"
 
@@ -10,12 +9,18 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr", ":8090", "http service address")
+// var addr = flag.String("addr", ":8090", "http service address")
 
 var upGrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
+}
+
+func errHandle(err error) {
+	if err != nil {
+		return
+	}
 }
 
 var isGaming bool

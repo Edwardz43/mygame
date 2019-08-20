@@ -1,4 +1,4 @@
-package main
+package gameserver
 
 // GameBase ...
 type GameBase interface {
