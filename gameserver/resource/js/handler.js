@@ -3,11 +3,12 @@
 let isGaming = false;
 
 function showGameResult(obj) {
-    // console.log(obj)
+    console.log(obj)
+    detail = obj.game_detail
     document.querySelector(".run").innerHTML = obj.run;
     let index = 1;
     [...document.querySelectorAll(".dice")].forEach(function (Element) {
-        Element.setAttribute("src", "/static/img/game/dice/" + obj["d" + index] + ".jpg");
+        Element.setAttribute("src", "/static/img/game/dice/" + detail["d" + index] + ".jpg");
         index++;
     })
 }

@@ -8,16 +8,11 @@ import (
 
 var run = 1
 
-// GameResult ...
-type GameResult struct {
-	Run int `json:"run"`
-	D1  int `json:"d1"`
-	D2  int `json:"d2"`
-	D3  int `json:"d3"`
-}
+// DiceGame ...
+type DiceGame struct{}
 
 // StartGame ...
-func StartGame(result chan *GameResult) {
+func (d *DiceGame) StartGame(result chan *GameResult) {
 	log.Println("Start Game")
 	// t := time.NewTicker(time.Second * 30)
 	// for {
@@ -33,20 +28,25 @@ func StartGame(result chan *GameResult) {
 	// }
 	for range time.Tick(time.Second * 10) {
 		log.Println("New Game")
-		r := NewGame()
+		r := d.NewGame()
 		result <- r
 	}
 }
 
 // NewGame ...
-func NewGame() *GameResult {
+func (d *DiceGame) NewGame() *GameResult {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	gr := new(GameResult)
-	gr.Run = run
-	gr.D1 = r.Intn(6) + 1
-	gr.D2 = r.Intn(6) + 1
-	gr.D3 = r.Intn(6) + 1
+	gr := GameResult{
+		Run:       run,
+		Timestamp: time.Now(),
+		GameType:  Dice,
+		GameDetail: DiceGameDetail{
+			D1: r.Intn(6) + 1,
+			D2: r.Intn(6) + 1,
+			D3: r.Intn(6) + 1,
+		},
+	}
 	run++
 	log.Println(gr)
-	return gr
+	return &gr
 }

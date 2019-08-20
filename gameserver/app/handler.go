@@ -10,7 +10,6 @@ import (
 )
 
 // var addr = flag.String("addr", ":8090", "http service address")
-
 var upGrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
@@ -62,9 +61,9 @@ func serve() {
 	r.Run(":8090")
 }
 
-func startGame(hub *Hub) {
+func startGame(hub *Hub, gb GameBase) {
 	result := make(chan *GameResult)
-	go StartGame(result)
+	go gb.StartGame(result)
 	for {
 		r, err := json.Marshal(<-result)
 		errHandle(err)
@@ -83,6 +82,6 @@ func Start() {
 	// isGaming = false
 	hub = newHub()
 	go hub.run()
-	go startGame(hub)
+	go startGame(hub, &DiceGame{})
 	serve()
 }

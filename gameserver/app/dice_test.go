@@ -8,11 +8,12 @@ import (
 )
 
 func TestNewGame(t *testing.T) {
-	r := gameserver.NewGame()
-	assert.NotNil(t, r.D1)
-	assert.NotNil(t, r.D2)
-	assert.NotNil(t, r.D3)
-	assert.NotNil(t, r.Run)
+	g := gameserver.DiceGame{}
+	gameResult := *g.NewGame()
+	// assert.NotNil(t, r.D1)
+	// assert.NotNil(t, r.D2)
+	// assert.NotNil(t, r.D3)
+	assert.NotNil(t, a)
 }
 
 // func TestStartGame(t *testing.T) {
