@@ -33,8 +33,8 @@ func (m *mysqlUserRepo) getOne(ctx context.Context, query string, args ...interf
 	err = row.Scan(
 		&a.ID,
 		&a.Name,
-		// &a.CreatedAt,
-		// &a.UpdatedAt,
+		&a.CreatedAt,
+		&a.UpdatedAt,
 	)
 	if err != nil {
 		logrus.Error(err)
@@ -44,7 +44,36 @@ func (m *mysqlUserRepo) getOne(ctx context.Context, query string, args ...interf
 	return a, nil
 }
 
+func (m *mysqlUserRepo) createOne(ctx context.Context, query string, args ...interface{}) (int64, error) {
+	stmt, err := m.DB.PrepareContext(ctx, query)
+	if err != nil {
+		logrus.Error(err)
+		return -1, err
+	}
+	result, err := stmt.ExecContext(ctx, args...)
+	if err != nil {
+		logrus.Error(err)
+		return -1, err
+	}
+	a, err := result.LastInsertId()
+	if err != nil {
+		logrus.Error(err)
+		return -1, err
+	}
+	return a, nil
+}
+
+func (m *mysqlUserRepo) CreateNewOne(ctx context.Context, name string) (int64, error) {
+	query := "INSERT INTO Users (Name) VALUES (?)"
+	return m.createOne(ctx, query, name)
+}
+
 func (m *mysqlUserRepo) GetByID(ctx context.Context, id int64) (*models.User, error) {
-	query := `SELECT id, name FROM Users WHERE id=?`
+	query := `SELECT * FROM Users WHERE ID=?`
 	return m.getOne(ctx, query, id)
+}
+
+func (m *mysqlUserRepo) GetByName(ctx context.Context, name string) (*models.User, error) {
+	query := `SELECT * FROM Users WHERE Name=?`
+	return m.getOne(ctx, query, name)
 }

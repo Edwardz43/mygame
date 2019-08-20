@@ -4,12 +4,13 @@ import (
 	"testing"
 
 	"github.com/Edwardz43/mygame/gameserver/db"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestConnect(t *testing.T) {
 	//TODO
 	d := db.Connect()
-	err := d.Ping()
-	assert.Empty(t, err)
+	if err := d.Ping(); err != nil {
+		t.Errorf("an error '%s' was not expected when opening db connection", err)
+	}
+
 }
