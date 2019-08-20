@@ -49,12 +49,12 @@ func serveWebsocket(c *gin.Context) {
 
 func serve() {
 	r := gin.Default()
-	r.LoadHTMLFiles("../resource/home.html")
+	r.LoadHTMLFiles("./resource/home.html")
 	r.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "home.html", nil)
 	})
 
-	r.Static("/static", "../resource")
+	r.Static("/static", "./resource")
 
 	r.GET("/ws", serveWebsocket)
 
