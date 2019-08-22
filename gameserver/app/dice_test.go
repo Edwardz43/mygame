@@ -10,10 +10,10 @@ import (
 func TestNewGame(t *testing.T) {
 	g := gameserver.DiceGame{}
 	gameResult := *g.NewGame()
-	// assert.NotNil(t, r.D1)
-	// assert.NotNil(t, r.D2)
-	// assert.NotNil(t, r.D3)
-	assert.NotNil(t, a)
+	assert.NotNil(t, gameResult.Run)
+	assert.NotNil(t, gameResult.Timestamp)
+	assert.NotNil(t, gameResult.GameType)
+	assert.NotNil(t, gameResult.GameDetail)
 }
 
 // func TestStartGame(t *testing.T) {
