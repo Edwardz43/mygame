@@ -2,6 +2,17 @@
 // const connectBtn = document.querySelector("#connect");
 let isGaming = false;
 
+function bgChange() {
+    let count = 1;
+    let oldClass = "bg1";
+    setInterval(function(){
+        console.log("bgchange()");
+        count  = count % 5 + 1;
+        document.getElementById("container").classList.replace(oldClass, "bg" + count);
+        oldClass = "bg" + count;       
+    }, 10 * 1000)
+}
+
 function showGameResult(obj) {
     console.log(obj)
     detail = obj.game_detail
@@ -38,3 +49,4 @@ function connect() {
 }
 
 connect();
+bgChange();
