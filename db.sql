@@ -12,6 +12,25 @@ CREATE TABLE `Users` (
   UNIQUE KEY `Users_ID_NAME_IDX` (`ID`,`Name`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `GameResult`;
+
+CREATE TABLE `GameResult` (
+  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `GameID` int(10) unsigned NOT NULL,
+  `Detail` varchar(500) CHARACTER SET utf16 NOT NULL,
+  `Created_At` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ModTimes` int(10) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `GameInfo`;
+
+CREATE TABLE `GameInfo` (
+  `GameID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `Name` varchar(50) NOT NULL,
+  PRIMARY KEY (`GameID`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
 LOCK TABLES `Users` WRITE;
 
 INSERT INTO MyGame.Users (Name,Created_At,Updated_At) VALUES 
