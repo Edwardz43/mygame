@@ -1,7 +1,5 @@
 package gameserver
 
-import "time"
-
 // GameType ...
 type GameType int8
 
@@ -13,7 +11,6 @@ const (
 // GameResult ...
 type GameResult struct {
 	Run        int         `json:"run"`
-	Timestamp  time.Time   `json:"timestamp"`
 	GameType   GameType    `json:"game_type"`
 	GameDetail interface{} `json:"game_detail"`
 }

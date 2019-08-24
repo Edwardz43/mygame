@@ -2,7 +2,6 @@ package repository_test
 
 import (
 	"testing"
-	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	gameserver "github.com/Edwardz43/mygame/gameserver/app"
@@ -21,7 +20,12 @@ func TestAddNewOne(t *testing.T) {
 	}
 	defer db.Close()
 
-	mock.ExpectPrepare("INSERT INTO GameResult").ExpectExec().WithArgs(1, "", time.Now(), 0).WillReturnResult(sqlmock.NewResult(1, 1))
+	detail := "{d1:1, d2:2, d3:3}"
+
+	mock.ExpectPrepare("INSERT INTO GameResult").
+		ExpectExec().
+		WithArgs(1, detail, 0).
+		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	a := repository.NewMysqlGameResultRepository(db)
 
@@ -29,9 +33,8 @@ func TestAddNewOne(t *testing.T) {
 
 	gr := gameserver.GameResult{
 		Run:        1,
-		Timestamp:  time.Now(),
 		GameType:   gameserver.Dice,
-		GameDetail: "{d1:1, d2:2, d3:3}",
+		GameDetail: detail,
 	}
 
 	if n, err = a.AddNewOne(&gr); err != nil {

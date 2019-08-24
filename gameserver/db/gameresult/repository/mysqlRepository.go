@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	gameserver "github.com/Edwardz43/mygame/gameserver/app"
 	"github.com/sirupsen/logrus"
@@ -68,8 +67,8 @@ func NewMysqlGameResultRepository(db *sql.DB) gameresult.Repository {
 }
 
 func (m *mysqlGameResultRepo) AddNewOne(result *gameserver.GameResult) (int64, error) {
-	query := "INSERT INTO GameResult (GameID, Detail, Created_At, ModTimes) VALUES (?, ?, ?, ?)"
-	return m.createOne(context.TODO(), query, result.GameType, result.GameDetail, time.Now(), 0)
+	query := "INSERT INTO GameResult (GameID, Detail, ModTimes) VALUES (?, ?, ?)"
+	return m.createOne(context.TODO(), query, result.GameType, result.GameDetail, 0)
 }
 
 func (m *mysqlGameResultRepo) GetByBetNo(ctx context.Context, betNo int64) (*models.GameResult, error) {

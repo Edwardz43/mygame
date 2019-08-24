@@ -37,9 +37,8 @@ func (d *DiceGame) StartGame(result chan *GameResult) {
 func (d *DiceGame) NewGame() *GameResult {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	gr := GameResult{
-		Run:       run,
-		Timestamp: time.Now(),
-		GameType:  Dice,
+		Run:      run,
+		GameType: Dice,
 		GameDetail: DiceGameDetail{
 			D1: r.Intn(6) + 1,
 			D2: r.Intn(6) + 1,
