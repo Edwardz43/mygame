@@ -1,7 +1,11 @@
 package repository_test
 
 import (
+	"encoding/json"
+	"fmt"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	gameserver "github.com/Edwardz43/mygame/gameserver/app"
@@ -20,11 +24,18 @@ func TestAddNewOne(t *testing.T) {
 	}
 	defer db.Close()
 
-	detail := "{d1:1, d2:2, d3:3}"
+	detail := gameserver.DiceGameDetail{D1: 1, D2: 2, D3: 3}
+
+	r, err := json.Marshal(detail)
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when marshaling game detail", err)
+	}
+
+	run, _ := strconv.Atoi(time.Now().Format("20060102") + fmt.Sprintf("%04d", 1))
 
 	mock.ExpectPrepare("INSERT INTO GameResult").
 		ExpectExec().
-		WithArgs(1, detail, 0).
+		WithArgs(1, int64(run), string(r), 0).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	a := repository.NewMysqlGameResultRepository(db)
@@ -37,7 +48,14 @@ func TestAddNewOne(t *testing.T) {
 		GameDetail: detail,
 	}
 
-	if n, err = a.AddNewOne(&gr); err != nil {
+	r, err = json.Marshal(gr.GameDetail)
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when marshaling game detail", err)
+	}
+
+	run, _ = strconv.Atoi(time.Now().Format("20060102") + fmt.Sprintf("%04d", gr.Run))
+
+	if n, err = a.AddNewOne(int8(gr.GameType), int64(run), string(r), 0); err != nil {
 		t.Errorf("an error '%s' was not expected when add a new game result", err)
 	}
 	assert.NotZero(t, n)

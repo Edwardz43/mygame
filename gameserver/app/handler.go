@@ -2,19 +2,17 @@ package gameserver
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
+	"github.com/Edwardz43/mygame/gameserver/app/service"
+	"github.com/Edwardz43/mygame/gameserver/db"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
-
-// var addr = flag.String("addr", ":8090", "http service address")
-var upGrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
 
 func errHandle(err error) {
 	if err != nil {
@@ -22,11 +20,18 @@ func errHandle(err error) {
 	}
 }
 
-var isGaming bool
-
-var conn *websocket.Conn
-
-var hub *Hub
+// var addr = flag.String("addr", ":8090", "http service address")
+var (
+	isGaming          bool
+	conn              *websocket.Conn
+	hub               *Hub
+	gameResultService *service.GameResultService
+	upGrader          = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+)
 
 func serveWebsocket(c *gin.Context) {
 	// flag.Parse()
@@ -65,7 +70,18 @@ func startGame(hub *Hub, gb GameBase) {
 	result := make(chan *GameResult)
 	go gb.StartGame(result)
 	for {
-		r, err := json.Marshal(<-result)
+		gameR := <-result
+
+		detail, _ := json.Marshal(gameR.GameDetail)
+
+		run, _ := strconv.Atoi(time.Now().Format("20060102") + fmt.Sprintf("%04d", gameR.Run))
+
+		m, err := gameResultService.AddNewOne(int8(gameR.GameType), int64(run), string(detail), 0)
+		errHandle(err)
+
+		log.Println(m)
+
+		r, err := json.Marshal(gameR)
 		errHandle(err)
 		data := Data{
 			Event:   "202",
@@ -80,6 +96,9 @@ func startGame(hub *Hub, gb GameBase) {
 // Start starts process.
 func Start() {
 	// isGaming = false
+	gameResultService = &service.GameResultService{
+		DbConn: db.Connect(),
+	}
 	hub = newHub()
 	go hub.run()
 	go startGame(hub, &DiceGame{})

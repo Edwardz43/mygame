@@ -12,7 +12,8 @@ import (
 )
 
 func init() {
-	viper.SetConfigFile(`config.json`)
+	log.Println(os.Executable())
+	viper.SetConfigFile(`/home/edlo/go-project/mygame/gameserver/config.json`)
 	err := viper.ReadInConfig()
 	if err != nil {
 		panic(err)
@@ -45,13 +46,5 @@ func Connect() *sql.DB {
 		os.Exit(1)
 	}
 
-	// defer func() {
-	// 	err := dbConn.Close()
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// }()
-
 	return dbConn
-	// TODO
 }
