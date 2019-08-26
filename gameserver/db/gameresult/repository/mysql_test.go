@@ -13,8 +13,50 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetByBetNo(t *testing.T) {
+func TestGetOne(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
 
+	rows := sqlmock.NewRows([]string{"ID", "GameID", "Run", "Detail", "Created_At", "ModTimes"}).
+		AddRow(1, 1, 201908260001, "", time.Now(), 0)
+
+	query := "SELECT (.+) FROM GameResult WHERE GameID=\\? AND Run=\\?;"
+
+	mock.ExpectPrepare(query).
+		ExpectQuery().
+		WithArgs(1, 201908260001).
+		WillReturnRows(rows)
+
+	a := repository.NewMysqlGameResultRepository(db)
+	result, err := a.GetOne(1, 201908260001)
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+}
+
+func TestGetByRun(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+
+	rows := sqlmock.NewRows([]string{"ID", "GameID", "Run", "Detail", "Created_At", "ModTimes"}).
+		AddRow(1, 1, 201908260001, "", time.Now(), 0).
+		AddRow(1, 1, 201908260002, "", time.Now(), 0)
+
+	query := "SELECT (.+) FROM GameResult WHERE GameID=\\? AND Run BETWEEN \\? AND \\?;"
+
+	mock.ExpectPrepare(query).
+		ExpectQuery().
+		WithArgs(1, 201908260001, 201908260002).
+		WillReturnRows(rows)
+
+	a := repository.NewMysqlGameResultRepository(db)
+	result, err := a.GetByRun(1, 201908260001, 201908260002)
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, len(result), 2)
 }
 
 func TestAddNewOne(t *testing.T) {
