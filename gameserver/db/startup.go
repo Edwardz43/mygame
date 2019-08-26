@@ -7,31 +7,14 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/Edwardz43/mygame/gameserver/config"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
 )
 
-func init() {
-	log.Println(os.Executable())
-	viper.SetConfigFile(`/home/edlo/go-project/mygame/gameserver/config.json`)
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-
-	if viper.GetBool(`debug`) {
-		fmt.Println("Service RUN on DEBUG mode")
-	}
-}
-
 // Connect ...
 func Connect() *sql.DB {
-	dbHost := viper.GetString(`database.host`)
-	dbPort := viper.GetString(`database.port`)
-	dbUser := viper.GetString(`database.user`)
-	dbPass := viper.GetString(`database.pass`)
-	dbName := viper.GetString(`database.name`)
-	connection := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
+	connection := config.GetDBConfig()
 	val := url.Values{}
 	val.Add("parseTime", "1")
 	val.Add("loc", "Asia/Taipei")
