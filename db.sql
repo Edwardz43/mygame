@@ -17,11 +17,12 @@ DROP TABLE IF EXISTS `GameResult`;
 CREATE TABLE `GameResult` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `GameID` int(10) unsigned NOT NULL,
+  `Run` bigint(20) unsigned NOT NULL,
   `Detail` varchar(500) CHARACTER SET utf16 NOT NULL,
   `Created_At` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ModTimes` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8
 
 DROP TABLE IF EXISTS `GameInfo`;
 
