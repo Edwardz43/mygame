@@ -11,7 +11,6 @@ func TestNewGame(t *testing.T) {
 	g := gameserver.DiceGame{}
 	gameResult := *g.NewGame()
 	assert.NotNil(t, gameResult.Run)
-	assert.NotNil(t, gameResult.Timestamp)
 	assert.NotNil(t, gameResult.GameType)
 	assert.NotNil(t, gameResult.GameDetail)
 }
