@@ -76,10 +76,12 @@ func startGame(hub *Hub, gb GameBase) {
 
 		run, _ := strconv.Atoi(time.Now().Format("20060102") + fmt.Sprintf("%04d", gameR.Run))
 
-		m, err := gameResultService.AddNewOne(int8(gameR.GameType), int64(run), string(detail), 0)
-		errHandle(err)
+		go func() {
+			m, err := gameResultService.AddNewOne(int8(gameR.GameType), int64(run), string(detail), 0)
+			errHandle(err)
 
-		log.Println(m)
+			log.Println(m)
+		}()
 
 		r, err := json.Marshal(gameR)
 		errHandle(err)
