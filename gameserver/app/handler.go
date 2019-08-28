@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/Edwardz43/mygame/gameserver/app/service"
-	"github.com/Edwardz43/mygame/gameserver/db"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -63,7 +62,7 @@ func serve() {
 	r.Run(":8090")
 }
 
-func startGame(hub *Hub, gb GameBase) {
+func start(hub *Hub, gb GameBase) {
 	result := make(chan *GameResult)
 	go gb.StartGame(result)
 	for {
@@ -91,14 +90,12 @@ func startGame(hub *Hub, gb GameBase) {
 	}
 }
 
-// Start starts process.
-func Start() {
+// Startup starts process.
+func Startup() {
 	// isGaming = false
-	gameResultService = &service.GameResultService{
-		DbConn: db.Connect(),
-	}
+	gameResultService = service.GetGameResultInstance()
 	hub = newHub()
 	go hub.run()
-	go startGame(hub, &DiceGame{})
+	go start(hub, &DiceGame{})
 	serve()
 }

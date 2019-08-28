@@ -1,22 +1,29 @@
 package service
 
 import (
-	"database/sql"
 	"log"
 
+	"github.com/Edwardz43/mygame/gameserver/db"
+	"github.com/Edwardz43/mygame/gameserver/db/gameresult"
 	"github.com/Edwardz43/mygame/gameserver/db/gameresult/repository"
 )
 
 // GameResultService ...
 type GameResultService struct {
-	DbConn *sql.DB
+	Repo gameresult.Repository
+}
+
+// GetGameResultInstance ...
+func GetGameResultInstance() *GameResultService {
+	return &GameResultService{
+		Repo: repository.NewMysqlGameResultRepository(db.Connect()),
+	}
 }
 
 // AddNewOne add a new result.
 func (service *GameResultService) AddNewOne(gameType int8, run int64, inn int, detail string, modID int) (message string, err error) {
-	gameResult := repository.NewMysqlGameResultRepository(service.DbConn)
 	// defer service.dbConn.Close()
-	n, err := gameResult.AddNewOne(gameType, run, inn, detail, modID)
+	n, err := service.Repo.AddNewOne(gameType, run, inn, detail, modID)
 
 	if err != nil {
 		log.Println(err)
@@ -28,4 +35,20 @@ func (service *GameResultService) AddNewOne(gameType int8, run int64, inn int, d
 	}
 
 	return "fail", nil
+}
+
+// GetLatestRunInn ...
+func (service *GameResultService) GetLatestRunInn(gameType int8) (message int, err error) {
+	n, err := service.Repo.GetLatestRunInn(gameType)
+
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
+
+	if n > 0 {
+		return n, nil
+	}
+
+	return -1, nil
 }

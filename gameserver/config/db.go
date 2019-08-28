@@ -12,6 +12,7 @@ func GetDBConfig() string {
 	viper.SetConfigType("json")
 	viper.AddConfigPath("./")
 	viper.AddConfigPath("../")
+	viper.AddConfigPath("../../")
 	viper.SetConfigName("config")
 	err := viper.ReadInConfig()
 	if err != nil {

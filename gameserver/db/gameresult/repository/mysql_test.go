@@ -17,18 +17,18 @@ func TestGetOne(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 
-	rows := sqlmock.NewRows([]string{"ID", "GameID", "Run", "Detail", "Created_At", "ModTimes"}).
-		AddRow(1, 1, 201908260001, "", time.Now(), 0)
+	rows := sqlmock.NewRows([]string{"ID", "GameID", "Run", "Inn", "Detail", "Created_At", "ModTimes"}).
+		AddRow(1, 1, 20190826, 1, "", time.Now(), 0)
 
-	query := "SELECT (.+) FROM GameResult WHERE GameID=\\? AND Run=\\?;"
+	query := "SELECT (.+) FROM GameResult WHERE GameID=\\? AND Run=\\? AND Inn=\\?;"
 
 	mock.ExpectPrepare(query).
 		ExpectQuery().
-		WithArgs(1, 201908260001).
+		WithArgs(1, 20190826, 1).
 		WillReturnRows(rows)
 
 	a := repository.NewMysqlGameResultRepository(db)
-	result, err := a.GetOne(1, 201908260001)
+	result, err := a.GetOne(1, 20190826, 1)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 }
@@ -97,4 +97,29 @@ func TestAddNewOne(t *testing.T) {
 	}
 	assert.NotZero(t, n)
 	assert.NotEqual(t, -1, n)
+}
+
+func TestGetLatestRunInn(t *testing.T) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
+	}
+
+	rows := sqlmock.NewRows([]string{"ID", "GameID", "Run", "Inn", "Detail", "Created_At", "ModTimes"}).
+		AddRow(3, 1, 20190826, 3, "", time.Now(), 0).
+		AddRow(2, 1, 20190826, 2, "", time.Now(), 0).
+		AddRow(1, 1, 20190826, 1, "", time.Now(), 0)
+
+	query := "SELECT (.+) FROM GameResult WHERE GameID=\\? ORDER BY ID DESC LIMIT 1;"
+
+	mock.ExpectPrepare(query).
+		ExpectQuery().
+		WithArgs(1).
+		WillReturnRows(rows)
+
+	a := repository.NewMysqlGameResultRepository(db)
+	result, err := a.GetLatestRunInn(1)
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, 3, result)
 }

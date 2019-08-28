@@ -28,6 +28,7 @@ func (m *mysqlGameResultRepo) getOne(query string, args ...interface{}) (*models
 		&a.ID,
 		&a.GameID,
 		&a.Run,
+		&a.Inn,
 		&a.Detail,
 		&a.CreatedAt,
 		&a.ModTimes,
@@ -112,12 +113,21 @@ func (m *mysqlGameResultRepo) AddNewOne(gameType int8, run int64, inn int, detai
 	return m.createOne(context.TODO(), query, int8(gameType), run, inn, detail, modID)
 }
 
-func (m *mysqlGameResultRepo) GetOne(gameType int8, run int64) (*models.GameResult, error) {
-	query := "SELECT * FROM GameResult WHERE GameID=? AND Run=?;"
-	return m.getOne(query, gameType, run)
+func (m *mysqlGameResultRepo) GetOne(gameType int8, run int64, inn int) (*models.GameResult, error) {
+	query := "SELECT * FROM GameResult WHERE GameID=? AND Run=? AND Inn=?;"
+	return m.getOne(query, gameType, run, inn)
 }
 
 func (m *mysqlGameResultRepo) GetByRun(gameType int8, runStart int64, runEnd int64) ([]*models.GameResult, error) {
 	query := "SELECT * FROM GameResult WHERE GameID=? AND Run BETWEEN ? AND ?;"
 	return m.getMany(query, gameType, runStart, runEnd)
+}
+
+func (m *mysqlGameResultRepo) GetLatestRunInn(gameType int8) (int, error) {
+	query := "SELECT * FROM GameResult WHERE GameID=? ORDER BY ID DESC LIMIT 1;"
+	gr, err := m.getOne(query, gameType)
+	if err != nil {
+		return -1, err
+	}
+	return gr.Inn, nil
 }

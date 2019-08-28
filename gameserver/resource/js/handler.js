@@ -27,6 +27,7 @@ function showGameResult(obj) {
 
 function connect() {
     let ws = new WebSocket("ws://localhost:8090/ws");
+    let counter = 5;
 
     ws.onmessage = (message) => {
         let obj = JSON.parse(message.data);
@@ -42,10 +43,14 @@ function connect() {
     }
 
     ws.onclose = function (evt) {
-        console.log("Connection close")
-        setTimeout(function () {
-            connect()
-        }, 5000)
+        if (counter >= 0) {
+            console.log("Connection close")
+            setTimeout(function () {
+                counter--;
+                connect();
+            }, 5000)
+        }
+
     };
 }
 
