@@ -3,10 +3,11 @@ package gameserver
 import (
 	"log"
 	"math/rand"
+	"strconv"
 	"time"
 )
 
-var run = 1
+var inn = 1
 var duration = time.Second * 30
 
 // DiceGame ...
@@ -15,18 +16,8 @@ type DiceGame struct{}
 // StartGame ...
 func (d *DiceGame) StartGame(result chan *GameResult) {
 	log.Println("Start Game")
-	// t := time.NewTicker(time.Second * 30)
-	// for {
-	// 	select {
-	// 	case <-t.C:
-	// 		log.Println("New Game")
-	// 		r := NewGame()
-	// 		// log.Println(r)
-	// 		result <- r
-	// 	default:
-	// 		//
-	// 	}
-	// }
+	// r := d.NewGame()
+	// result <- r
 	for range time.Tick(duration) {
 		log.Println("New Game")
 		r := d.NewGame()
@@ -37,8 +28,10 @@ func (d *DiceGame) StartGame(result chan *GameResult) {
 // NewGame ...
 func (d *DiceGame) NewGame() *GameResult {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	run, _ := strconv.Atoi(time.Now().Format("20060102"))
 	gr := GameResult{
-		Run:      run,
+		Run:      int64(run),
+		Inn:      inn,
 		GameType: Dice,
 		GameDetail: DiceGameDetail{
 			D1: r.Intn(6) + 1,
@@ -46,7 +39,7 @@ func (d *DiceGame) NewGame() *GameResult {
 			D3: r.Intn(6) + 1,
 		},
 	}
-	run++
+	inn++
 	log.Println(gr)
 	return &gr
 }

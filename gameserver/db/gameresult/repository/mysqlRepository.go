@@ -61,6 +61,7 @@ func (m *mysqlGameResultRepo) getMany(query string, args ...interface{}) ([]*mod
 			&a.ID,
 			&a.GameID,
 			&a.Run,
+			&a.Inn,
 			&a.Detail,
 			&a.CreatedAt,
 			&a.ModTimes,
@@ -106,9 +107,9 @@ func NewMysqlGameResultRepository(db *sql.DB) gameresult.Repository {
 	}
 }
 
-func (m *mysqlGameResultRepo) AddNewOne(gameType int8, run int64, detail string, modID int) (int64, error) {
-	query := "INSERT INTO GameResult (GameID, Run,  Detail, ModTimes) VALUES (?, ?, ?, ?);"
-	return m.createOne(context.TODO(), query, int8(gameType), run, detail, modID)
+func (m *mysqlGameResultRepo) AddNewOne(gameType int8, run int64, inn int, detail string, modID int) (int64, error) {
+	query := "INSERT INTO GameResult (GameID, Run, Inn, Detail, ModTimes) VALUES (?, ?, ?, ?, ?);"
+	return m.createOne(context.TODO(), query, int8(gameType), run, inn, detail, modID)
 }
 
 func (m *mysqlGameResultRepo) GetOne(gameType int8, run int64) (*models.GameResult, error) {

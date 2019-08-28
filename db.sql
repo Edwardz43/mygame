@@ -18,6 +18,7 @@ CREATE TABLE `GameResult` (
   `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `GameID` int(10) unsigned NOT NULL,
   `Run` bigint(20) unsigned NOT NULL,
+  `Inn` int(10) unsigned NOT NULL,
   `Detail` varchar(500) CHARACTER SET utf16 NOT NULL,
   `Created_At` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ModTimes` int(10) unsigned NOT NULL DEFAULT '0',

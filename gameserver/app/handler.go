@@ -2,11 +2,8 @@ package gameserver
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"strconv"
-	"time"
 
 	"github.com/Edwardz43/mygame/gameserver/app/service"
 	"github.com/Edwardz43/mygame/gameserver/db"
@@ -74,10 +71,9 @@ func startGame(hub *Hub, gb GameBase) {
 
 		detail, _ := json.Marshal(gameR.GameDetail)
 
-		run, _ := strconv.Atoi(time.Now().Format("20060102") + fmt.Sprintf("%04d", gameR.Run))
-
 		go func() {
-			m, err := gameResultService.AddNewOne(int8(gameR.GameType), int64(run), string(detail), 0)
+			m, err := gameResultService.
+				AddNewOne(int8(gameR.GameType), gameR.Run, gameR.Inn, string(detail), 0)
 			errHandle(err)
 
 			log.Println(m)

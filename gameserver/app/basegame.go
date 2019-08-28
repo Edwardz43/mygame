@@ -10,7 +10,8 @@ const (
 
 // GameResult ...
 type GameResult struct {
-	Run        int         `json:"run"`
+	Run        int64       `json:"run"`
+	Inn        int         `json:"inn"`
 	GameType   GameType    `json:"game_type"`
 	GameDetail interface{} `json:"game_detail"`
 }

@@ -2,8 +2,6 @@ package repository_test
 
 import (
 	"encoding/json"
-	"fmt"
-	"strconv"
 	"testing"
 	"time"
 
@@ -41,19 +39,19 @@ func TestGetByRun(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
 	}
 
-	rows := sqlmock.NewRows([]string{"ID", "GameID", "Run", "Detail", "Created_At", "ModTimes"}).
-		AddRow(1, 1, 201908260001, "", time.Now(), 0).
-		AddRow(1, 1, 201908260002, "", time.Now(), 0)
+	rows := sqlmock.NewRows([]string{"ID", "GameID", "Run", "Inn", "Detail", "Created_At", "ModTimes"}).
+		AddRow(1, 1, 20190826, 1, "", time.Now(), 0).
+		AddRow(1, 1, 20190826, 2, "", time.Now(), 0)
 
 	query := "SELECT (.+) FROM GameResult WHERE GameID=\\? AND Run BETWEEN \\? AND \\?;"
 
 	mock.ExpectPrepare(query).
 		ExpectQuery().
-		WithArgs(1, 201908260001, 201908260002).
+		WithArgs(1, 20190826, 20190826).
 		WillReturnRows(rows)
 
 	a := repository.NewMysqlGameResultRepository(db)
-	result, err := a.GetByRun(1, 201908260001, 201908260002)
+	result, err := a.GetByRun(1, 20190826, 20190826)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, len(result), 2)
@@ -73,11 +71,9 @@ func TestAddNewOne(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when marshaling game detail", err)
 	}
 
-	run, _ := strconv.Atoi(time.Now().Format("20060102") + fmt.Sprintf("%04d", 1))
-
 	mock.ExpectPrepare("INSERT INTO GameResult").
 		ExpectExec().
-		WithArgs(1, int64(run), string(r), 0).
+		WithArgs(1, 20190826, 1, string(r), 0).
 		WillReturnResult(sqlmock.NewResult(1, 1))
 
 	a := repository.NewMysqlGameResultRepository(db)
@@ -85,7 +81,8 @@ func TestAddNewOne(t *testing.T) {
 	var n int64
 
 	gr := gameserver.GameResult{
-		Run:        1,
+		Run:        20190826,
+		Inn:        1,
 		GameType:   gameserver.Dice,
 		GameDetail: detail,
 	}
@@ -95,9 +92,7 @@ func TestAddNewOne(t *testing.T) {
 		t.Fatalf("an error '%s' was not expected when marshaling game detail", err)
 	}
 
-	run, _ = strconv.Atoi(time.Now().Format("20060102") + fmt.Sprintf("%04d", gr.Run))
-
-	if n, err = a.AddNewOne(int8(gr.GameType), int64(run), string(r), 0); err != nil {
+	if n, err = a.AddNewOne(int8(gr.GameType), gr.Run, gr.Inn, string(r), 0); err != nil {
 		t.Errorf("an error '%s' was not expected when add a new game result", err)
 	}
 	assert.NotZero(t, n)

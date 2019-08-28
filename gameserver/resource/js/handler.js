@@ -5,18 +5,19 @@ let isGaming = false;
 function bgChange() {
     let count = 1;
     let oldClass = "bg1";
-    setInterval(function(){
+    setInterval(function () {
         console.log("bgchange()");
-        count  = count % 5 + 1;
+        count = count % 5 + 1;
         document.getElementById("container").classList.replace(oldClass, "bg" + count);
-        oldClass = "bg" + count;       
+        oldClass = "bg" + count;
     }, 10 * 1000)
 }
 
 function showGameResult(obj) {
     console.log(obj)
     detail = obj.game_detail
-    document.querySelector(".run").innerHTML = obj.run;
+    document.querySelector("#run").innerHTML = obj.run;
+    document.querySelector("#inn").innerHTML = obj.inn;
     let index = 1;
     [...document.querySelectorAll(".dice")].forEach(function (Element) {
         Element.setAttribute("src", "/static/img/game/dice/" + detail["d" + index] + ".jpg");
@@ -40,7 +41,7 @@ function connect() {
         }
     }
 
-    ws.onclose = function (evt) {      
+    ws.onclose = function (evt) {
         console.log("Connection close")
         setTimeout(function () {
             connect()

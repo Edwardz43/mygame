@@ -13,10 +13,10 @@ type GameResultService struct {
 }
 
 // AddNewOne add a new result.
-func (service *GameResultService) AddNewOne(gameType int8, run int64, detail string, modID int) (message string, err error) {
+func (service *GameResultService) AddNewOne(gameType int8, run int64, inn int, detail string, modID int) (message string, err error) {
 	gameResult := repository.NewMysqlGameResultRepository(service.DbConn)
 	// defer service.dbConn.Close()
-	n, err := gameResult.AddNewOne(gameType, run, detail, modID)
+	n, err := gameResult.AddNewOne(gameType, run, inn, detail, modID)
 
 	if err != nil {
 		log.Println(err)
