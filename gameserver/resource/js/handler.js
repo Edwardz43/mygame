@@ -2,11 +2,14 @@
 // const connectBtn = document.querySelector("#connect");
 let isGaming = false;
 
+const COMMAND_RESULT = "202",
+    COMMAND_NEW_RUN = "201";
+
 function bgChange() {
     let count = 1;
     let oldClass = "bg1";
     setInterval(function () {
-        console.log("bgchange()");
+        // console.log("bgchange()");
         count = count % 5 + 1;
         document.getElementById("container").classList.replace(oldClass, "bg" + count);
         oldClass = "bg" + count;
@@ -25,17 +28,32 @@ function showGameResult(obj) {
     })
 }
 
+function startNewRun(obj) {
+    let cd = obj.message;
+    console.log(cd);
+
+    let countdown = setInterval(function () {
+        if (cd >= 0) {
+            document.querySelector("#countdown").innerHTML = cd--;
+        } else {
+            clearInterval(countdown);
+        }
+    }, 1000)
+
+}
+
 function connect() {
     let ws = new WebSocket("ws://localhost:8090/ws");
     let counter = 5;
 
     ws.onmessage = (message) => {
         let obj = JSON.parse(message.data);
-        // console.log(obj);    
         switch (obj.event) {
-            case "202":
-                // console.log("recived success");
+            case COMMAND_RESULT:
                 showGameResult(JSON.parse(obj.message));
+                break;
+            case COMMAND_NEW_RUN:
+                startNewRun(obj);
                 break;
             default:
                 break;

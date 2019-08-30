@@ -8,7 +8,7 @@ import (
 )
 
 var inn = 1
-var duration = time.Second * 30
+var duration = time.Second * 10
 
 // DiceGame ...
 type DiceGame struct{}
@@ -16,10 +16,9 @@ type DiceGame struct{}
 // StartGame ...
 func (d *DiceGame) StartGame(result chan *GameResult) {
 	log.Println("Start Game")
-	// r := d.NewGame()
-	// result <- r
+	r := d.NewGame()
+	result <- r
 	for range time.Tick(duration) {
-		log.Println("New Game")
 		r := d.NewGame()
 		result <- r
 	}

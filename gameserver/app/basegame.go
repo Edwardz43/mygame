@@ -2,10 +2,18 @@ package gameserver
 
 // GameType ...
 type GameType int8
+type GameStatus int8
 
 const (
 	Dice GameType = iota + 1
 	Roulette
+)
+
+const (
+	NewRun GameStatus = iota + 1
+	Settlement
+	Intermission
+	Maintain
 )
 
 // GameResult ...

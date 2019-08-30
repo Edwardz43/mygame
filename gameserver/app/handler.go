@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/Edwardz43/mygame/gameserver/app/service"
 	"github.com/gin-gonic/gin"
@@ -66,27 +67,41 @@ func start(hub *Hub, gb GameBase) {
 	result := make(chan *GameResult)
 	go gb.StartGame(result)
 	for {
+		// gameR := gb.NewGame()
+		newRun := Data{
+			Event:   "201",
+			Message: duration.String()[0:2],
+		}
+
+		d, err := json.Marshal(newRun)
+
+		errHandle(err)
+
+		hub.broadcast <- d
+
 		gameR := <-result
 
 		detail, _ := json.Marshal(gameR.GameDetail)
 
-		go func() {
-			m, err := gameResultService.
-				AddNewOne(int8(gameR.GameType), gameR.Run, gameR.Inn, string(detail), 0)
+		time.AfterFunc(duration, func() {
+
+			go func() {
+				m, err := gameResultService.
+					AddNewOne(int8(gameR.GameType), gameR.Run, gameR.Inn, string(detail), 0)
+				errHandle(err)
+				log.Println(m)
+			}()
+
+			r, err := json.Marshal(gameR)
 			errHandle(err)
-
-			log.Println(m)
-		}()
-
-		r, err := json.Marshal(gameR)
-		errHandle(err)
-		data := Data{
-			Event:   "202",
-			Message: string(r),
-		}
-		d, err := json.Marshal(data)
-		errHandle(err)
-		hub.broadcast <- d
+			data := Data{
+				Event:   "202",
+				Message: string(r),
+			}
+			d, err := json.Marshal(data)
+			errHandle(err)
+			hub.broadcast <- d
+		})
 	}
 }
 
