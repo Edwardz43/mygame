@@ -3,7 +3,7 @@ package repository_test
 import (
 	"testing"
 
-	"github.com/Edwardz43/mygame/gameserver/app/repository"
+	"github.com/Edwardz43/mygame/gameserver/db/models"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/stretchr/testify/assert"
@@ -24,10 +24,10 @@ func TestGetGameResult(t *testing.T) {
 	}
 	defer db.Close()
 
-	db.AutoMigrate(&repository.GameResult{})	
+	db.AutoMigrate(&models.GameResult{})
 
 	// Create
-	db.Create(&repository.GameResult{
+	db.Create(&models.GameResult{
 		GameID:   1,
 		Run:      20190831,
 		Inn:      1,
@@ -35,7 +35,7 @@ func TestGetGameResult(t *testing.T) {
 		ModTimes: 0,
 	})
 
-	var gr repository.GameResult
+	var gr models.GameResult
 	db.First(&gr, "run = ?", 20190831)
 
 	db.Model(&gr).Update("inn", 2)

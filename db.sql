@@ -25,6 +25,24 @@ CREATE TABLE `GameResult` (
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=560 DEFAULT CHARSET=utf8;
 
+
+DROP TABLE IF EXISTS `game_results`;
+
+CREATE TABLE `game_results` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `game_id` tinyint(3) unsigned DEFAULT NULL,
+  `run` bigint(20) unsigned DEFAULT NULL,
+  `inn` int(10) unsigned DEFAULT NULL,
+  `detail` varchar(255) DEFAULT NULL,
+  `mod_times` tinyint(3) unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_game_results_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+
+
 DROP TABLE IF EXISTS `GameInfo`;
 
 CREATE TABLE `GameInfo` (

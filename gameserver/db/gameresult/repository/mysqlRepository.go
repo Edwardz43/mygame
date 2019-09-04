@@ -129,5 +129,5 @@ func (m *mysqlGameResultRepo) GetLatestRunInn(gameType int8) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	return gr.Inn, nil
+	return int(gr.Inn), nil
 }

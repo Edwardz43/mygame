@@ -4,6 +4,12 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+// GameResultRepository ...
+type GameResultRepository struct {
+	DB *gorm.DB
+}
+
+// GameResult ...
 type GameResult struct {
 	gorm.Model
 	GameID   uint8
