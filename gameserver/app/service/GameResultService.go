@@ -16,12 +16,13 @@ type GameResultService struct {
 // GetGameResultInstance ...
 func GetGameResultInstance() *GameResultService {
 	return &GameResultService{
-		Repo: repository.NewMysqlGameResultRepository(db.Connect()),
+		// Repo: repository.NewMysqlGameResultRepository(db.Connect()),
+		Repo: repository.GetGameResultInstance(db.ConnectGorm()),
 	}
 }
 
 // AddNewOne add a new result.
-func (service *GameResultService) AddNewOne(gameType int8, run int64, inn int, detail string, modID int) (message string, err error) {
+func (service *GameResultService) AddNewOne(gameType int8, run int64, inn int, detail string, modID int8) (message string, err error) {
 	// defer service.dbConn.Close()
 	n, err := service.Repo.AddNewOne(gameType, run, inn, detail, modID)
 

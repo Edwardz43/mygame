@@ -108,7 +108,7 @@ func NewMysqlGameResultRepository(db *sql.DB) gameresult.Repository {
 	}
 }
 
-func (m *mysqlGameResultRepo) AddNewOne(gameType int8, run int64, inn int, detail string, modID int) (int64, error) {
+func (m *mysqlGameResultRepo) AddNewOne(gameType int8, run int64, inn int, detail string, modID int8) (int64, error) {
 	query := "INSERT INTO GameResult (GameID, Run, Inn, Detail, ModTimes) VALUES (?, ?, ?, ?, ?);"
 	return m.createOne(context.TODO(), query, int8(gameType), run, inn, detail, modID)
 }
