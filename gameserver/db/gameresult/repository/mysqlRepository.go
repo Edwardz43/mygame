@@ -122,12 +122,3 @@ func (m *mysqlGameResultRepo) GetByRun(gameType int8, runStart int64, runEnd int
 	query := "SELECT * FROM GameResult WHERE GameID=? AND Run BETWEEN ? AND ?;"
 	return m.getMany(query, gameType, runStart, runEnd)
 }
-
-func (m *mysqlGameResultRepo) GetLatestRunInn(gameType int8) (int, error) {
-	query := "SELECT * FROM GameResult WHERE GameID=? ORDER BY ID DESC LIMIT 1;"
-	gr, err := m.getOne(query, gameType)
-	if err != nil {
-		return -1, err
-	}
-	return int(gr.Inn), nil
-}
