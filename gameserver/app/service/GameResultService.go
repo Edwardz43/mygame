@@ -37,19 +37,3 @@ func (service *GameResultService) AddNewOne(gameType int8, run int64, inn int, d
 
 	return "fail", nil
 }
-
-// GetLatestRunInn ...
-func (service *GameResultService) GetLatestRunInn(gameType int8) (message int, err error) {
-	n, err := service.Repo.GetLatestRunInn(gameType)
-
-	if err != nil {
-		log.Println(err)
-		return -1, err
-	}
-
-	if n > 0 {
-		return n, nil
-	}
-
-	return -1, nil
-}

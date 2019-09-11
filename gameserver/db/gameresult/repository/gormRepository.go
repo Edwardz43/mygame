@@ -49,8 +49,3 @@ func (repo GameResultRepository) GetOne(gameType int8, run int64, inn int) (*mod
 func (repo GameResultRepository) GetByRun(gameType int8, runStart int64, runEnd int64) ([]*models.GameResult, error) {
 	return nil, nil
 }
-
-// GetLatestRunInn ..
-func (repo GameResultRepository) GetLatestRunInn(gameType int8) (int, error) {
-	return -1, nil
-}
