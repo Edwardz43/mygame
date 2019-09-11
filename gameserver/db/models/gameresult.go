@@ -1,12 +1,33 @@
 package models
 
+import (
+	"time"
+)
+
 // GameResult represent the gameresult model
 type GameResult struct {
-	ID        int64  `json:"id"`
-	GameID    int8   `json:"game_id"`
-	Run       int64  `json:"run"`
-	Inn       int    `json:"inn"`
-	Detail    string `json:"detail"`
-	CreatedAt string `json:"created_at"`
-	ModTimes  int8   `json:"mod_times"`
+	// gorm.Model
+	ID        int64      `gorm:"id" json:"id"`
+	GameID    int8       `gorm:"game_id" json:"game_id"`
+	Run       int64      `gorm:"run" json:"run"`
+	Inn       int        `gorm:"inn" json:"inn"`
+	Detail    string     `gorm:"detail" json:"detail"`
+	CreatedAt *time.Time `gorm:"created_at" json:"created_at"`
+	UpdatedAt *time.Time `gorm:"updated_at" json:"updated_at"`
+	ModTimes  int8       `gorm:"mod_times" json:"mod_times"`
 }
+
+// TableName returns the custom table name.
+func (GameResult) TableName() string {
+	return "GameResult"
+}
+
+// GameResult represent the gameresult model
+// type GameResult struct {
+// 	gorm.Model
+// 	GameID   uint8
+// 	Run      uint64
+// 	Inn      uint16
+// 	Detail   string
+// 	ModTimes uint8
+// }

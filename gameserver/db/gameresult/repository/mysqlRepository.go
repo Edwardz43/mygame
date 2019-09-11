@@ -108,7 +108,7 @@ func NewMysqlGameResultRepository(db *sql.DB) gameresult.Repository {
 	}
 }
 
-func (m *mysqlGameResultRepo) AddNewOne(gameType int8, run int64, inn int, detail string, modID int) (int64, error) {
+func (m *mysqlGameResultRepo) AddNewOne(gameType int8, run int64, inn int, detail string, modID int8) (int64, error) {
 	query := "INSERT INTO GameResult (GameID, Run, Inn, Detail, ModTimes) VALUES (?, ?, ?, ?, ?);"
 	return m.createOne(context.TODO(), query, int8(gameType), run, inn, detail, modID)
 }
@@ -121,13 +121,4 @@ func (m *mysqlGameResultRepo) GetOne(gameType int8, run int64, inn int) (*models
 func (m *mysqlGameResultRepo) GetByRun(gameType int8, runStart int64, runEnd int64) ([]*models.GameResult, error) {
 	query := "SELECT * FROM GameResult WHERE GameID=? AND Run BETWEEN ? AND ?;"
 	return m.getMany(query, gameType, runStart, runEnd)
-}
-
-func (m *mysqlGameResultRepo) GetLatestRunInn(gameType int8) (int, error) {
-	query := "SELECT * FROM GameResult WHERE GameID=? ORDER BY ID DESC LIMIT 1;"
-	gr, err := m.getOne(query, gameType)
-	if err != nil {
-		return -1, err
-	}
-	return gr.Inn, nil
 }

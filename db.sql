@@ -4,33 +4,36 @@ USE `MyGame`;
 DROP TABLE IF EXISTS `Users`;
 
 CREATE TABLE `Users` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `Name` varchar(50) NOT NULL COMMENT '會員名稱',
-  `Created_At` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `Updated_At` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL COMMENT '會員名稱',
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`ID`),
-  UNIQUE KEY `Users_ID_NAME_IDX` (`ID`,`Name`) USING BTREE
+  UNIQUE KEY `Users_ID_NAME_IDX` (`id`,`name`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `GameResult`;
 
 CREATE TABLE `GameResult` (
-  `ID` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `GameID` int(10) unsigned NOT NULL,
-  `Run` bigint(20) unsigned NOT NULL,
-  `Inn` int(10) unsigned NOT NULL,
-  `Detail` varchar(500) CHARACTER SET utf16 NOT NULL,
-  `Created_At` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `ModTimes` int(10) unsigned NOT NULL DEFAULT '0',
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `game_id` tinyint(3) unsigned DEFAULT NULL,
+  `run` bigint(20) unsigned NOT NULL,
+  `inn` int(10) unsigned NOT NULL,
+  `detail` varchar(500) CHARACTER SET utf16 NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `mod_times` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB AUTO_INCREMENT=560 DEFAULT CHARSET=utf8;
+
 
 DROP TABLE IF EXISTS `GameInfo`;
 
 CREATE TABLE `GameInfo` (
-  `GameID` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `Name` varchar(50) NOT NULL,
-  PRIMARY KEY (`GameID`)
+  `game_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL,
+  PRIMARY KEY (`game_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 LOCK TABLES `Users` WRITE;
