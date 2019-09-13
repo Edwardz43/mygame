@@ -2,8 +2,13 @@
 // const connectBtn = document.querySelector("#connect");
 let isGaming = false;
 
-const COMMAND_RESULT = "202",
-    COMMAND_NEW_RUN = "201";
+const COMMAND_NEW_RUN = "201",
+    COMMAND_SHOWDOWN = "202",
+    COMMAND_RESULT = "203";
+
+function showStatus(status) {
+    document.querySelector("#status").innerHTML = status;
+}
 
 function bgChange() {
     let count = 1;
@@ -30,16 +35,16 @@ function showGameResult(obj) {
 
 function startNewRun(obj) {
     let cd = obj.message;
+    // let cd = 10;
     console.log(cd);
 
-    let countdown = setInterval(function () {
+    let countdown = function() {
         if (cd >= 0) {
-            document.querySelector("#countdown").innerHTML = cd--;
-        } else {
-            clearInterval(countdown);
-        }
-    }, 1000)
-
+            document.querySelector("#countdown").innerHTML = cd--;            
+            setTimeout(countdown, 1000);
+        } 
+    }
+    countdown();
 }
 
 function connect() {
@@ -50,11 +55,15 @@ function connect() {
         let obj = JSON.parse(message.data);
         switch (obj.event) {
             case COMMAND_RESULT:
-                showGameResult(JSON.parse(obj.message));
+                showStatus("Settlement");                                
                 break;
-            case COMMAND_NEW_RUN:
+            case COMMAND_NEW_RUN:            
+                showStatus("New Run");
                 startNewRun(obj);
                 break;
+            case COMMAND_SHOWDOWN:                
+            showStatus("Show Down");
+                showGameResult(JSON.parse(obj.message));
             default:
                 break;
         }

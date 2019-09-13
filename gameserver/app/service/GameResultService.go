@@ -24,6 +24,7 @@ func GetGameResultInstance() *GameResultService {
 // AddNewOne add a new result.
 func (service *GameResultService) AddNewOne(gameType int8, run int64, inn int, detail string, modID int8) (message string, err error) {
 	// defer service.dbConn.Close()
+	log.Printf("[%s] : [%s] parameters [%d][%d][%d][%s][%d]", "LobbGameResultServiceyService", "AddNewOne", gameType, run, inn, detail, modID)
 	n, err := service.Repo.AddNewOne(gameType, run, inn, detail, modID)
 
 	if err != nil {

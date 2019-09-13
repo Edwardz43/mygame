@@ -12,6 +12,18 @@ CREATE TABLE `Users` (
   UNIQUE KEY `Users_ID_NAME_IDX` (`id`,`name`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
+DROP TABLE IF EXISTS `Lobby`;
+
+CREATE TABLE `Lobby` (
+  `game_id` smallint(5) unsigned NOT NULL COMMENT '遊戲類型',
+  `run` bigint(20) unsigned NOT NULL,
+  `inn` int(10) unsigned NOT NULL,
+  `status` smallint(5) unsigned NOT NULL COMMENT '遊戲狀態 1.新局 2.開牌 3.結算 4.中場休息 5.維護'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO MyGame.Lobby (game_id,run,inn, `status`) VALUES 
+(1, 20190914, 1, 1);
+
 DROP TABLE IF EXISTS `GameResult`;
 
 CREATE TABLE `GameResult` (

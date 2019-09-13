@@ -25,15 +25,9 @@ type GameResult struct {
 	GameDetail interface{} `json:"game_detail"`
 }
 
-// DiceGameDetail ...
-type DiceGameDetail struct {
-	D1 int `json:"d1"`
-	D2 int `json:"d2"`
-	D3 int `json:"d3"`
-}
-
 // GameBase ...
 type GameBase interface {
-	StartGame(chan *GameResult)
-	NewGame() *GameResult
+	StartGame()
+	NewGame() interface{}
+	GetGameID() GameType
 }

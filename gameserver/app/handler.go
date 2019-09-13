@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/Edwardz43/mygame/gameserver/app/service"
@@ -23,11 +24,17 @@ var (
 	conn              *websocket.Conn
 	hub               *Hub
 	gameResultService *service.GameResultService
+	lobbyService      *service.LobbyService
 	upGrader          = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
 	}
+	gameResult *GameResult
+	gameBase   GameBase
+	run        int64
+	inn        int
+	status     int8
 )
 
 func serveWebsocket(c *gin.Context) {
@@ -64,49 +71,49 @@ func serve() {
 }
 
 func start(hub *Hub, gb GameBase) {
-	result := make(chan *GameResult)
-	go gb.StartGame(result)
-	for {
 
-		// lobbyService := service.GetLobbyInstance()
+	gameResult = new(GameResult)
 
-		// run, inn, status, err := lobbyService.GetLatest(int(Dice))
+	gameBase = gb
+	// for {
+	go gameBase.StartGame()
 
-		// gameR := gb.NewGame()
-		newRun := Data{
-			Event:   "201",
-			Message: duration.String()[0:2],
-		}
+	run, inn, status, _ = lobbyService.GetLatest(int(Dice))
 
-		d, err := json.Marshal(newRun)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-		errHandle(err)
+	if run == 0 {
+		i, _ := strconv.Atoi(time.Now().Format("20060102"))
+		run = int64(i)
+	}
 
-		hub.broadcast <- d
+	if inn == 0 {
+		inn = 1
+	}
 
-		gameR := <-result
-
-		detail, _ := json.Marshal(gameR.GameDetail)
-
-		time.AfterFunc(duration, func() {
-
-			go func() {
-				m, err := gameResultService.
-					AddNewOne(int8(gameR.GameType), gameR.Run, gameR.Inn, string(detail), 0)
-				errHandle(err)
-				log.Println(m)
-			}()
-
-			r, err := json.Marshal(gameR)
-			errHandle(err)
-			data := Data{
-				Event:   "202",
-				Message: string(r),
-			}
-			d, err := json.Marshal(data)
-			errHandle(err)
-			hub.broadcast <- d
-		})
+	switch GameStatus(status) {
+	case NewRun:
+		//TODO
+		newInn()
+		break
+	case Showdown:
+		//TODO
+		showDown()
+		break
+	case Settlement:
+		//TODO
+		settlement()
+		break
+	case Intermission:
+		//TODO
+		break
+	case Maintain:
+		//TODO
+		break
+	default:
+		//TODO
 	}
 }
 
@@ -114,8 +121,82 @@ func start(hub *Hub, gb GameBase) {
 func Startup() {
 	// isGaming = false
 	gameResultService = service.GetGameResultInstance()
+	lobbyService = service.GetLobbyInstance()
 	hub = newHub()
 	go hub.run()
 	go start(hub, &DiceGame{})
 	serve()
 }
+
+func newRun() {}
+
+func newInn() {
+	inn++
+
+	detail := gameBase.NewGame()
+
+	lobbyService.Update(int(gameBase.GetGameID()), run, inn, int(NewRun))
+
+	gameResult.Run = run
+	gameResult.Inn = inn
+	gameResult.GameType = gameBase.GetGameID()
+	gameResult.GameDetail = detail
+
+	newRun := Data{
+		Event:   "201",
+		Message: duration.String()[0:2],
+	}
+
+	d, err := json.Marshal(newRun)
+
+	errHandle(err)
+
+	hub.broadcast <- d
+
+	time.AfterFunc(duration, showDown)
+}
+
+func showDown() {
+
+	lobbyService.Update(int(gameBase.GetGameID()), run, inn, int(Showdown))
+
+	detail, _ := json.Marshal(gameResult.GameDetail)
+
+	go func() {
+		m, err := gameResultService.
+			AddNewOne(int8(gameResult.GameType), gameResult.Run, gameResult.Inn, string(detail), 0)
+		errHandle(err)
+		log.Println(m)
+	}()
+
+	r, err := json.Marshal(gameResult)
+	errHandle(err)
+	data := Data{
+		Event:   "202",
+		Message: string(r),
+	}
+	d, err := json.Marshal(data)
+	errHandle(err)
+	hub.broadcast <- d
+
+	time.AfterFunc(showDownTime, settlement)
+}
+
+func settlement() {
+
+	lobbyService.Update(int(gameBase.GetGameID()), run, inn, int(Settlement))
+
+	data := Data{
+		Event:   "203",
+		Message: "Settling",
+	}
+	d, err := json.Marshal(data)
+	errHandle(err)
+	hub.broadcast <- d
+
+	time.AfterFunc(showDownTime, newInn)
+}
+
+func intermission() {}
+
+func maintain() {}
