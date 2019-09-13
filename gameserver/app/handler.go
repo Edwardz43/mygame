@@ -67,6 +67,11 @@ func start(hub *Hub, gb GameBase) {
 	result := make(chan *GameResult)
 	go gb.StartGame(result)
 	for {
+
+		// lobbyService := service.GetLobbyInstance()
+
+		// run, inn, status, err := lobbyService.GetLatest(int(Dice))
+
 		// gameR := gb.NewGame()
 		newRun := Data{
 			Event:   "201",

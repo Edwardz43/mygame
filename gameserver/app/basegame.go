@@ -11,6 +11,7 @@ const (
 
 const (
 	NewRun GameStatus = iota + 1
+	Showdown
 	Settlement
 	Intermission
 	Maintain

@@ -15,6 +15,7 @@ type DiceGame struct{}
 
 // StartGame ...
 func (d *DiceGame) StartGame(result chan *GameResult) {
+
 	log.Println("Start Game")
 	r := d.NewGame()
 	result <- r
