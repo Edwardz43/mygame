@@ -38,11 +38,11 @@ function startNewRun(obj) {
     // let cd = 10;
     console.log(cd);
 
-    let countdown = function() {
+    let countdown = function () {
         if (cd >= 0) {
-            document.querySelector("#countdown").innerHTML = cd--;            
+            document.querySelector("#countdown").innerHTML = cd--;
             setTimeout(countdown, 1000);
-        } 
+        }
     }
     countdown();
 }
@@ -55,14 +55,14 @@ function connect() {
         let obj = JSON.parse(message.data);
         switch (obj.event) {
             case COMMAND_RESULT:
-                showStatus("Settlement");                                
+                showStatus("Settlement");
                 break;
-            case COMMAND_NEW_RUN:            
+            case COMMAND_NEW_RUN:
                 showStatus("New Run");
                 startNewRun(obj);
                 break;
-            case COMMAND_SHOWDOWN:                
-            showStatus("Show Down");
+            case COMMAND_SHOWDOWN:
+                showStatus("Show Down");
                 showGameResult(JSON.parse(obj.message));
             default:
                 break;

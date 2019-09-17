@@ -22,7 +22,7 @@ CREATE TABLE `Lobby` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO MyGame.Lobby (game_id,run,inn, `status`) VALUES 
-(1, 20190914, 1, 1);
+(1, 20190917, 0, 1);
 
 DROP TABLE IF EXISTS `GameResult`;
 

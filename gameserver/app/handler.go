@@ -94,7 +94,7 @@ func start(hub *Hub, gb GameBase) {
 	}
 
 	switch GameStatus(status) {
-	case NewRun:
+	case NewInn:
 		//TODO
 		newInn()
 		break
@@ -128,14 +128,24 @@ func Startup() {
 	serve()
 }
 
-func newRun() {}
+func newRun() {
+	run, _, _, err := lobbyService.GetLatest(int(gameBase.GetGameID()))
+	errHandle(err)
+
+	runNow, _ := strconv.Atoi(time.Now().Format("20060102"))
+
+	if run != int64(runNow) {
+		lobbyService.Update(int(gameBase.GetGameID()), int64(runNow), 1, int(NewInn))
+	}
+	newInn()
+}
 
 func newInn() {
 	inn++
 
 	detail := gameBase.NewGame()
 
-	lobbyService.Update(int(gameBase.GetGameID()), run, inn, int(NewRun))
+	lobbyService.Update(int(gameBase.GetGameID()), run, inn, int(NewInn))
 
 	gameResult.Run = run
 	gameResult.Inn = inn
@@ -166,7 +176,7 @@ func showDown() {
 		m, err := gameResultService.
 			AddNewOne(int8(gameResult.GameType), gameResult.Run, gameResult.Inn, string(detail), 0)
 		errHandle(err)
-		log.Println(m)
+		log.Printf("[%s] : [%s] message [%s]", "GameResultService", "AddNewOne", m)
 	}()
 
 	r, err := json.Marshal(gameResult)
@@ -194,7 +204,7 @@ func settlement() {
 	errHandle(err)
 	hub.broadcast <- d
 
-	time.AfterFunc(showDownTime, newInn)
+	time.AfterFunc(showDownTime, newRun)
 }
 
 func intermission() {}
