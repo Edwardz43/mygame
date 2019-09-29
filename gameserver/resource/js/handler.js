@@ -15,7 +15,7 @@ function bgChange() {
     let oldClass = "bg1";
     setInterval(function () {
         // console.log("bgchange()");
-        count = count % 5 + 1;
+        count = count % 2 + 1;
         document.getElementById("container").classList.replace(oldClass, "bg" + count);
         oldClass = "bg" + count;
     }, 10 * 1000)
