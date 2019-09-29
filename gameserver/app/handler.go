@@ -129,13 +129,14 @@ func Startup() {
 }
 
 func newRun() {
-	run, _, _, err := lobbyService.GetLatest(int(gameBase.GetGameID()))
+	log.Printf("[%s] : [%s]", "hanlder", "newRun")
+	runOld, _, _, err := lobbyService.GetLatest(int(gameBase.GetGameID()))
 	errHandle(err)
-
 	runNow, _ := strconv.Atoi(time.Now().Format("20060102"))
-
-	if run != int64(runNow) {
-		lobbyService.Update(int(gameBase.GetGameID()), int64(runNow), 1, int(NewInn))
+	if runOld != int64(runNow) {
+		run = int64(runNow)
+		inn = 0
+		lobbyService.Update(int(gameBase.GetGameID()), run, 1, int(NewInn))
 	}
 	newInn()
 }
