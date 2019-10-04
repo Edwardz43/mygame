@@ -2,7 +2,7 @@ version: "3"
 services:
   mysql:
     image: mysql:5.7 
-    container_name: mygame-mysql57
+    container_name: mygame-mysql
     command: mysqld --user=root
     volumes:
       - ./db.sql:/docker-entrypoint-initdb.d/init.sql      
