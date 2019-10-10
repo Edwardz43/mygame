@@ -1,6 +1,7 @@
 
 // const connectBtn = document.querySelector("#connect");
 let isGaming = false;
+let timmer;
 
 const COMMAND_NEW_RUN = "201",
     COMMAND_SHOWDOWN = "202",
@@ -37,14 +38,13 @@ function startNewRun(obj) {
     let cd = obj.message;
     // let cd = 10;
     console.log(cd);
-
-    let countdown = function () {
+    timmer = function () {
         if (cd >= 0) {
             document.querySelector("#countdown").innerHTML = cd--;
-            setTimeout(countdown, 1000);
+            setTimeout(timmer, 1000);
         }
     }
-    countdown();
+    timmer();
 }
 
 function connect() {
