@@ -16,6 +16,8 @@ services:
   #     - MYSQL_ROOT_PASSWORD=root
   #     - TZ=UTC
   postgres:
+    container_name:
+      postgres
     image: postgres
     restart: always
     environment:
@@ -30,6 +32,8 @@ services:
       - mygame
       
   pgadmin:
+    container_name:
+      pgadmin
     image: dpage/pgadmin4
     restart: always
     environment:
@@ -48,7 +52,7 @@ services:
     build: 
       context: .    
     ports:
-      - "8090:80"
+      - "8090:8090"
     depends_on:
       - postgres
     networks:
