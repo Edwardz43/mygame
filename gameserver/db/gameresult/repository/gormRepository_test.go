@@ -6,12 +6,15 @@ import (
 	"github.com/Edwardz43/mygame/gameserver/db/gameresult/repository"
 	"github.com/Edwardz43/mygame/gameserver/db/models"
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+
+	// _ "github.com/jinzhu/gorm/dialects/mysql"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestDBConnection(t *testing.T) {
-	db, err := gorm.Open("mysql", "root:root@tcp(127.0.0.1:13306)/MyGame")
+	// db, err := gorm.Open("mysql", "root:root@tcp(127.0.0.1:13306)/MyGame")
+	db, err := gorm.Open("postgres", "host=127.0.0.1 port=15432 user=admin dbname=postgres password=test sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
@@ -19,11 +22,14 @@ func TestDBConnection(t *testing.T) {
 }
 
 func TestGetGameResultC(t *testing.T) {
-	db, err := gorm.Open("mysql", "root:root@tcp(127.0.0.1:13306)/MyGame?parseTime=true")
+	// db, err := gorm.Open("mysql", "root:root@tcp(127.0.0.1:13306)/MyGame?parseTime=true")
+	db, err := gorm.Open("postgres", "host=127.0.0.1 port=15432 user=admin dbname=postgres password=test sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
+
+	db.AutoMigrate(&models.GameResult{})
 
 	// Create
 	db.Create(&models.GameResult{
@@ -41,7 +47,8 @@ func TestGetGameResultC(t *testing.T) {
 }
 
 func TestAddNewOneShouldReturnGameResultID(t *testing.T) {
-	db, err := gorm.Open("mysql", "root:root@tcp(127.0.0.1:13306)/MyGame?parseTime=true")
+	// db, err := gorm.Open("mysql", "root:root@tcp(127.0.0.1:13306)/MyGame?parseTime=true")
+	db, err := gorm.Open("postgres", "host=127.0.0.1 port=15432 user=admin dbname=postgres password=test sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
@@ -58,7 +65,8 @@ func TestAddNewOneShouldReturnGameResultID(t *testing.T) {
 }
 
 func TestAddNewOneShouldReturnError(t *testing.T) {
-	db, err := gorm.Open("mysql", "root:root@tcp(127.0.0.1:13306)/MyGame?parseTime=true")
+	// db, err := gorm.Open("mysql", "root:root@tcp(127.0.0.1:13306)/MyGame?parseTime=true")
+	db, err := gorm.Open("postgres", "host=127.0.0.1 port=15432 user=admin dbname=postgres password=test sslmode=disable")
 	if err != nil {
 		panic(err)
 	}

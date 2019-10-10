@@ -6,12 +6,19 @@
     "context":{
       "timeout":2
     },
-    "database": {
+    "mysqldb": {
         "host": "localhost",
         "port": "13306",
         "user": "root",
         "pass": "root",
         "name": "MyGame"
+    },
+    "postgresdb": {
+      "host": "postgres",
+      "port": "5432",
+      "user": "admin",
+      "pass": "test",
+      "name": "postgres",
+      "sslmode" : "disable"
     }
-  
   }

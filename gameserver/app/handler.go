@@ -67,7 +67,7 @@ func serve() {
 	r.GET("/ws", serveWebsocket)
 
 	log.Println("listen http://localhost:8090")
-	r.Run(":8090")
+	r.Run(":80")
 }
 
 func start(hub *Hub, gb GameBase) {

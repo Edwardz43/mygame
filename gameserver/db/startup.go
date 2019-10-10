@@ -8,8 +8,9 @@ import (
 	"os"
 
 	"github.com/Edwardz43/mygame/gameserver/config"
-	_ "github.com/go-sql-driver/mysql"
+	// _ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/spf13/viper"
 )
 
@@ -35,15 +36,11 @@ func Connect() *sql.DB {
 
 // ConnectGorm ...
 func ConnectGorm() *gorm.DB {
-	connection := config.GetDBConfig()
-	val := url.Values{}
-	val.Add("parseTime", "1")
-	val.Add("loc", "Asia/Taipei")
-	val.Add("parseTime", "true")
-	dsn := fmt.Sprintf("%s?%s", connection, val.Encode())
-	db, err := gorm.Open("mysql", dsn)
+	connection := config.GetDBConfigV2()
+	db, err := gorm.Open("postgres", connection)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
+		// panic(err)
 	}
 
 	if err != nil && viper.GetBool("debug") {
