@@ -8,6 +8,8 @@ import (
 	"os"
 
 	"github.com/Edwardz43/mygame/gameserver/config"
+	"github.com/Edwardz43/mygame/gameserver/db/models"
+
 	// _ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -52,6 +54,10 @@ func ConnectGorm() *gorm.DB {
 		log.Fatal(err)
 		os.Exit(1)
 	}
+
+	db.AutoMigrate(&models.GameResult{})
+	db.AutoMigrate(&models.Lobby{})
+	db.AutoMigrate(&models.Member{})
 
 	return db
 }

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Edwardz43/mygame/gameserver/db/models"
 	"github.com/gorilla/websocket"
 )
 
@@ -44,6 +45,8 @@ type Data struct {
 type Client struct {
 	ID int64
 
+	member *models.Member
+
 	hub *Hub
 
 	// The websocket connection.
@@ -68,6 +71,7 @@ func (c *Client) readPump() {
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
 		_, message, err := c.conn.ReadMessage()
+		// log.Printf("readPump message : [%v]", message)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
@@ -92,18 +96,19 @@ func (c *Client) readPump() {
 		// 	}
 
 		// }
-		log.Printf("[%v]", string(message))
+		// log.Printf("[%v]", string(message))
 		d := new(Data)
 		err = json.Unmarshal(message, &d)
 		errHandle(err)
-
+		// log.Printf("event: [%v], messgae: [%v]", d.Event, d.Message)
+		Command <- d
 		// switch d.Event {
 		// case "201":
 
 		// 	break
 		// }
 
-		c.hub.broadcast <- message
+		// c.hub.broadcast <- message
 	}
 }
 

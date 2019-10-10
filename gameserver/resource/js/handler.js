@@ -2,10 +2,13 @@
 // const connectBtn = document.querySelector("#connect");
 let isGaming = false;
 let timmer;
+let ws;    
 
-const COMMAND_NEW_RUN = "201",
+const COMMAND_CONNECTED = "200",
+    COMMAND_NEW_RUN = "201",
     COMMAND_SHOWDOWN = "202",
-    COMMAND_RESULT = "203";
+    COMMAND_RESULT = "203",
+    COMMAND_BET = "204";
 
 function showStatus(status) {
     document.querySelector("#status").innerHTML = status;
@@ -48,14 +51,18 @@ function startNewRun(obj) {
 }
 
 function connect() {
-    let ws = new WebSocket("ws://localhost:8090/ws");
     let counter = 5;
 
+    ws = new WebSocket("ws://localhost:8090/ws");
+
     ws.onmessage = (message) => {
+        // console.table(message.data)
         let obj = JSON.parse(message.data);
         switch (obj.event) {
-            case COMMAND_RESULT:
-                showStatus("Settlement");
+            case COMMAND_CONNECTED:
+                console.log("ws connected")
+                register();
+                getTableStatus();
                 break;
             case COMMAND_NEW_RUN:
                 showStatus("New Run");
@@ -64,6 +71,9 @@ function connect() {
             case COMMAND_SHOWDOWN:
                 showStatus("Show Down");
                 showGameResult(JSON.parse(obj.message));
+            case COMMAND_RESULT:
+                showStatus("Settlement");
+                break;
             default:
                 break;
         }
@@ -78,7 +88,19 @@ function connect() {
             }, 5000)
         }
 
-    };
+    };    
+}
+
+function register() {
+    console.log("send login")
+    let data = {event: '200', message : '{"name":"edlo", "email":"test@example.com", "password":"8888"}'}
+    ws.send(JSON.stringify(data))
+}
+
+function getTableStatus() {
+    console.log("send getTableStatus")
+    let data = {event: '300', message : '{"table":"dice"'}
+    ws.send(JSON.stringify(data))
 }
 
 connect();

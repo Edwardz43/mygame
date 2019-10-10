@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Edwardz43/mygame/gameserver/app/service"
+	"github.com/Edwardz43/mygame/gameserver/db/models"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -35,6 +36,7 @@ var (
 	run        int64
 	inn        int
 	status     int8
+	Command    chan *Data
 )
 
 func serveWebsocket(c *gin.Context) {
@@ -49,10 +51,45 @@ func serveWebsocket(c *gin.Context) {
 	}
 	client.hub.register <- client
 
+	msg := Data{
+		Event:   "200",
+		Message: "",
+	}
+
+	d, err := json.Marshal(msg)
+
+	errHandle(err)
+
+	hub.send <- &PersonalMessage{
+		client:  client,
+		message: d,
+	}
+
+	Command = make(chan *Data)
+
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
+
+	for {
+		// select {
+		// case command := <-Command:
+		// 	log.Printf("COMMAND : [%v]", command)
+		// }
+		command := <-Command
+
+		switch command.Event {
+		case "300":
+			log.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
+		case "200":
+			log.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
+			m := new(models.Member)
+			json.Unmarshal([]byte(command.Message), &m)
+			client.member = m
+			log.Printf("Member : [%v]", client.member)
+		}
+	}
 }
 
 func serve() {
@@ -67,7 +104,7 @@ func serve() {
 	r.GET("/ws", serveWebsocket)
 
 	log.Println("listen http://localhost:8090")
-	r.Run(":80")
+	r.Run(":8090")
 }
 
 func start(hub *Hub, gb GameBase) {
@@ -128,6 +165,7 @@ func Startup() {
 	serve()
 }
 
+// newRun 新輪
 func newRun() {
 	log.Printf("[%s] : [%s]", "hanlder", "newRun")
 	runOld, _, _, err := lobbyService.GetLatest(int(gameBase.GetGameID()))
@@ -141,6 +179,7 @@ func newRun() {
 	newInn()
 }
 
+// newInn 新局
 func newInn() {
 	inn++
 
@@ -167,6 +206,7 @@ func newInn() {
 	time.AfterFunc(duration, showDown)
 }
 
+// showDown 開牌
 func showDown() {
 
 	lobbyService.Update(int(gameBase.GetGameID()), run, inn, int(Showdown))
@@ -193,6 +233,7 @@ func showDown() {
 	time.AfterFunc(showDownTime, settlement)
 }
 
+// settlement 結算
 func settlement() {
 
 	lobbyService.Update(int(gameBase.GetGameID()), run, inn, int(Settlement))

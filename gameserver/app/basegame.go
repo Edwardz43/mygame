@@ -3,6 +3,7 @@ package gameserver
 // GameType ...
 type GameType int8
 type GameStatus int8
+type COMMAND int
 
 const (
 	Dice GameType = iota + 1
@@ -15,6 +16,14 @@ const (
 	Settlement
 	Intermission
 	Maintain
+)
+
+const (
+	Register COMMAND = iota + 200
+	NewRun
+	ShowDown
+	RESULT
+	Bet
 )
 
 // GameResult ...
