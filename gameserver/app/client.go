@@ -3,11 +3,9 @@ package gameserver
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
-	"github.com/Edwardz43/mygame/gameserver/db/models"
 	"github.com/gorilla/websocket"
 )
 
@@ -43,9 +41,9 @@ type Data struct {
 
 // Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	ID int64
+	memberID uint
 
-	member *models.Member
+	// member *models.Member
 
 	hub *Hub
 
@@ -71,10 +69,10 @@ func (c *Client) readPump() {
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
 		_, message, err := c.conn.ReadMessage()
-		// log.Printf("readPump message : [%v]", message)
+		// Logger.Printf("readPump message : [%v]", message)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("error: %v", err)
+				Logger.Printf("error: %v", err)
 			}
 			break
 		}
@@ -86,21 +84,21 @@ func (c *Client) readPump() {
 
 		// 	for {
 		// 		b, err := json.Marshal(<-result)
-		// 		log.Println(string(b))
+		// 		Logger.Println(string(b))
 		// 		if err != nil {
 		// 			// send(window, "", "500")
-		// 			log.Panicln(err)
+		// 			Logger.Panicln(err)
 		// 		}
 		// 		w.Write(b)
 
 		// 	}
 
 		// }
-		// log.Printf("[%v]", string(message))
+		// Logger.Printf("[%v]", string(message))
 		d := new(Data)
 		err = json.Unmarshal(message, &d)
 		errHandle(err)
-		// log.Printf("event: [%v], messgae: [%v]", d.Event, d.Message)
+		// Logger.Printf("event: [%v], messgae: [%v]", d.Event, d.Message)
 		Command <- d
 		// switch d.Event {
 		// case "201":
@@ -138,13 +136,13 @@ func (c *Client) writePump() {
 				return
 			}
 
-			// log.Println(string(message))
+			// Logger.Println(string(message))
 			d := new(Data)
 			err = json.Unmarshal(message, &d)
 			if err != nil {
-				log.Println(err)
+				Logger.Println(err)
 			}
-			// log.Println(d)
+			// Logger.Println(d)
 			w.Write(message)
 
 			// Add queued chat messages to the current websocket message.
@@ -169,7 +167,7 @@ func (c *Client) writePump() {
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err)
+		Logger.Println(err)
 		return
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}

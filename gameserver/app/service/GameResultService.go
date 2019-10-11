@@ -1,8 +1,6 @@
 package service
 
 import (
-	"log"
-
 	"github.com/Edwardz43/mygame/gameserver/db"
 	"github.com/Edwardz43/mygame/gameserver/db/gameresult"
 	"github.com/Edwardz43/mygame/gameserver/db/gameresult/repository"
@@ -24,11 +22,11 @@ func GetGameResultInstance() *GameResultService {
 // AddNewOne add a new result.
 func (service *GameResultService) AddNewOne(gameType int8, run int64, inn int, detail string, modID int8) (message string, err error) {
 	// defer service.dbConn.Close()
-	log.Printf("[%s] : [%s] parameters [%d][%d][%d][%s][%d]", "LobbGameResultServiceyService", "AddNewOne", gameType, run, inn, detail, modID)
+	Logger.Printf("parameters [%d][%d][%d][%s][%d]", gameType, run, inn, detail, modID)
 	n, err := service.Repo.AddNewOne(gameType, run, inn, detail, modID)
 
 	if err != nil {
-		log.Println(err)
+		Logger.Println(err)
 		return "err", nil
 	}
 

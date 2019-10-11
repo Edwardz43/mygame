@@ -1,7 +1,5 @@
 package gameserver
 
-import "log"
-
 // PersonalMessage ...
 type PersonalMessage struct {
 	client  *Client
@@ -41,17 +39,17 @@ func (h *Hub) run() {
 		select {
 		case client := <-h.register:
 			h.clients[client] = true
-			log.Printf("client connected")
+			Logger.Printf("client connected : memberID=[%v]", client.memberID)
 		case client := <-h.unregister:
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
 				close(client.send)
 			}
-			log.Printf("client disconnect")
+			Logger.Printf("client disconnect : memberID=[%v]", client.memberID)
 		case pMessage := <-h.send:
 			c := pMessage.client
 			c.send <- pMessage.message
-			// log.Printf("client connected")
+			Logger.Printf("personal message : memberID=[%v], message=[%v]", pMessage.client.memberID, string(pMessage.message))
 		case message := <-h.broadcast:
 			for client := range h.clients {
 				select {
@@ -61,6 +59,7 @@ func (h *Hub) run() {
 					delete(h.clients, client)
 				}
 			}
+			Logger.Printf("broadcast : message=[%v]", string(message))
 		}
 	}
 }

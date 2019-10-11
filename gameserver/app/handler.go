@@ -2,26 +2,33 @@ package gameserver
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/Edwardz43/mygame/gameserver/app/service"
 	"github.com/Edwardz43/mygame/gameserver/db/models"
+	"github.com/Edwardz43/mygame/gameserver/lib/log"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
 )
 
+func init() {
+	Logger = log.Create("gs")
+}
+
 func errHandle(err error) {
-	if err != nil {
+	if err == nil {
 		return
 	}
+	Logger.Printf("ERROR : [%v]", err)
 }
 
 // var addr = flag.String("addr", ":8090", "http service address")
 var (
 	isGaming          bool
+	engine            *gin.Engine
 	conn              *websocket.Conn
 	hub               *Hub
 	gameResultService *service.GameResultService
@@ -37,6 +44,7 @@ var (
 	inn        int
 	status     int8
 	Command    chan *Data
+	Logger     *logrus.Logger
 )
 
 func serveWebsocket(c *gin.Context) {
@@ -44,7 +52,6 @@ func serveWebsocket(c *gin.Context) {
 	conn, err := upGrader.Upgrade(c.Writer, c.Request, nil)
 	errHandle(err)
 	client := &Client{
-		ID:   1,
 		hub:  hub,
 		conn: conn,
 		send: make(chan []byte, 256),
@@ -81,30 +88,33 @@ func serveWebsocket(c *gin.Context) {
 
 		switch command.Event {
 		case "300":
-			log.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
-		case "200":
-			log.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
+			Logger.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
+		case "200": // register member to ws client
+			Logger.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
 			m := new(models.Member)
 			json.Unmarshal([]byte(command.Message), &m)
-			client.member = m
-			log.Printf("Member : [%v]", client.member)
+			client.memberID = m.ID
+			Logger.Printf("Member : [%v]", client.memberID)
 		}
 	}
 }
 
 func serve() {
-	r := gin.Default()
-	r.LoadHTMLFiles("./resource/home.html")
-	r.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "home.html", nil)
+	// resource
+	engine.LoadHTMLFiles("./resource/game.html")
+	engine.Static("/static", "./resource")
+
+	// index
+
+	// game
+	engine.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "game.html", nil)
 	})
 
-	r.Static("/static", "./resource")
+	engine.GET("/ws", serveWebsocket)
 
-	r.GET("/ws", serveWebsocket)
-
-	log.Println("listen http://localhost:8090")
-	r.Run(":8090")
+	// Logger.Println("listen http://localhost:8090")
+	engine.Run(":8090")
 }
 
 func start(hub *Hub, gb GameBase) {
@@ -154,20 +164,9 @@ func start(hub *Hub, gb GameBase) {
 	}
 }
 
-// Startup starts process.
-func Startup() {
-	// isGaming = false
-	gameResultService = service.GetGameResultInstance()
-	lobbyService = service.GetLobbyInstance()
-	hub = newHub()
-	go hub.run()
-	go start(hub, &DiceGame{})
-	serve()
-}
-
 // newRun 新輪
 func newRun() {
-	log.Printf("[%s] : [%s]", "hanlder", "newRun")
+	// Logger.Printf("[%s] : [%s]", "hanlder", "newRun")
 	runOld, _, _, err := lobbyService.GetLatest(int(gameBase.GetGameID()))
 	errHandle(err)
 	runNow, _ := strconv.Atoi(time.Now().Format("20060102"))
@@ -217,7 +216,7 @@ func showDown() {
 		m, err := gameResultService.
 			AddNewOne(int8(gameResult.GameType), gameResult.Run, gameResult.Inn, string(detail), 0)
 		errHandle(err)
-		log.Printf("[%s] : [%s] message [%s]", "GameResultService", "AddNewOne", m)
+		Logger.Printf("[%s] : [%s] message [%s]", "GameResultService", "AddNewOne", m)
 	}()
 
 	r, err := json.Marshal(gameResult)
@@ -252,3 +251,15 @@ func settlement() {
 func intermission() {}
 
 func maintain() {}
+
+// Startup starts process.
+func Startup() {
+	// isGaming = false
+	gameResultService = service.GetGameResultInstance()
+	lobbyService = service.GetLobbyInstance()
+	hub = newHub()
+	engine = gin.Default()
+	go hub.run()
+	go start(hub, &DiceGame{})
+	serve()
+}

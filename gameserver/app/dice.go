@@ -1,7 +1,6 @@
 package gameserver
 
 import (
-	"log"
 	"math/rand"
 	"time"
 )
@@ -22,7 +21,7 @@ type DiceGame struct{}
 
 // StartGame ...
 func (d *DiceGame) StartGame() {
-	log.Println("Start Game")
+	Logger.Println("Start Game")
 }
 
 // NewGame ...
@@ -45,7 +44,7 @@ func (d *DiceGame) NewGame() interface{} {
 		D2: r.Intn(6) + 1,
 		D3: r.Intn(6) + 1,
 	}
-	log.Println(detail)
+	Logger.Println(detail)
 	return detail
 }
 
