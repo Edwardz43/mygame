@@ -21,12 +21,11 @@ func GetGameResultInstance() *GameResultService {
 
 // AddNewOne add a new result.
 func (service *GameResultService) AddNewOne(gameType int8, run int64, inn int, detail string, modID int8) (message string, err error) {
-	// defer service.dbConn.Close()
-	Logger.Printf("parameters [%d][%d][%d][%s][%d]", gameType, run, inn, detail, modID)
+	logger.Printf("parameters [%d][%d][%d][%s][%d]", gameType, run, inn, detail, modID)
 	n, err := service.Repo.AddNewOne(gameType, run, inn, detail, modID)
 
 	if err != nil {
-		Logger.Println(err)
+		logger.Println(err.Error())
 		return "err", nil
 	}
 

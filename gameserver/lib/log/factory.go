@@ -4,14 +4,42 @@ import (
 	"fmt"
 	"path"
 	"runtime"
+	"strings"
 	"time"
+
+	"github.com/Edwardz43/logrustash"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
-// Create ...
-func Create(t string) *logrus.Logger {
+// Logger ...
+type Logger struct {
+	log *logrus.Logger
+}
+
+// Printf print format string with info level log.
+func (l *Logger) Printf(format string, args ...interface{}) {
+	if pc, f, line, ok := runtime.Caller(1); ok {
+		fnName := strings.Split(runtime.FuncForPC(pc).Name(), "gameserver")[1]
+		file := strings.Split(f, "mygame")[1]
+		caller := fmt.Sprintf("%s:%v %s", file, line, fnName)
+		l.log.WithField("caller", caller).Info(fmt.Sprintf(format, args...))
+	}
+}
+
+// Println print string with info level log.
+func (l *Logger) Println(msg interface{}) {
+	if pc, f, line, ok := runtime.Caller(1); ok {
+		fnName := strings.Split(runtime.FuncForPC(pc).Name(), "gameserver")[1]
+		file := strings.Split(f, "mygame")[1]
+		caller := fmt.Sprintf("%s:%v %s", file, line, fnName)
+		l.log.WithField("caller", caller).Info(fmt.Sprintf("%v", msg))
+	}
+}
+
+// Create creates logrus Logger with specific target class.
+func Create(t string) *Logger {
 	logger := logrus.New()
 	filename := time.Now().Format("20060102")
 	logger.SetOutput(&lumberjack.Logger{
@@ -23,13 +51,23 @@ func Create(t string) *logrus.Logger {
 	})
 
 	logger.SetReportCaller(true)
+	logger.SetLevel(logrus.DebugLevel)
 	logger.Formatter = &logrus.TextFormatter{
 		CallerPrettyfier: func(f *runtime.Frame) (string, string) {
 			filename := path.Base(f.File)
 			return fmt.Sprintf("%s()", f.Function), fmt.Sprintf("%s:%d", filename, f.Line)
 		},
 	}
-	logger.SetLevel(logrus.DebugLevel)
 
-	return logger
+	hook, err := logrustash.NewHook("tcp", "192.168.1.103:5000", t)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+	hook.TimeFormat = "2006-01-02 15:04:05.000"
+	logger.Hooks.Add(hook)
+
+	return &Logger{
+		log: logger,
+	}
 }

@@ -14,15 +14,3 @@ func TestNewGame(t *testing.T) {
 	// assert.NotNil(t, gameResult.GameType)
 	// assert.NotNil(t, gameResult.GameDetail)
 }
-
-// func TestStartGame(t *testing.T) {
-// 	r := make(chan *gameserver.GameResult)
-
-// 	go gameserver.StartGame(r)
-
-// 	for {
-// 		<-r
-// 		assert.NotNil(t, r)
-// 		break
-// 	}
-// }

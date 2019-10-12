@@ -11,21 +11,8 @@ import (
 	"github.com/Edwardz43/mygame/gameserver/lib/log"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/sirupsen/logrus"
 )
 
-func init() {
-	Logger = log.Create("gs")
-}
-
-func errHandle(err error) {
-	if err == nil {
-		return
-	}
-	Logger.Printf("ERROR : [%v]", err)
-}
-
-// var addr = flag.String("addr", ":8090", "http service address")
 var (
 	isGaming          bool
 	engine            *gin.Engine
@@ -43,9 +30,22 @@ var (
 	run        int64
 	inn        int
 	status     int8
-	Command    chan *Data
-	Logger     *logrus.Logger
+	command    chan *Data
+	logger     *log.Logger
 )
+
+func init() {
+	logger = log.Create("gs")
+}
+
+func errHandle(err error) {
+	if err == nil {
+		return
+	}
+	logger.Printf("ERROR : [%v]", err)
+}
+
+// var addr = flag.String("addr", ":8090", "http service address")
 
 func serveWebsocket(c *gin.Context) {
 	// flag.Parse()
@@ -72,7 +72,7 @@ func serveWebsocket(c *gin.Context) {
 		message: d,
 	}
 
-	Command = make(chan *Data)
+	command = make(chan *Data)
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
@@ -80,21 +80,17 @@ func serveWebsocket(c *gin.Context) {
 	go client.readPump()
 
 	for {
-		// select {
-		// case command := <-Command:
-		// 	log.Printf("COMMAND : [%v]", command)
-		// }
-		command := <-Command
+		command := <-command
 
 		switch command.Event {
 		case "300":
-			Logger.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
+			logger.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
 		case "200": // register member to ws client
-			Logger.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
+			logger.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
 			m := new(models.Member)
 			json.Unmarshal([]byte(command.Message), &m)
 			client.memberID = m.ID
-			Logger.Printf("Member : [%v]", client.memberID)
+			logger.Printf("MEMBER : [%v]", client.memberID)
 		}
 	}
 }
@@ -216,7 +212,7 @@ func showDown() {
 		m, err := gameResultService.
 			AddNewOne(int8(gameResult.GameType), gameResult.Run, gameResult.Inn, string(detail), 0)
 		errHandle(err)
-		Logger.Printf("[%s] : [%s] message [%s]", "GameResultService", "AddNewOne", m)
+		logger.Printf("[%s] : [%s] message [%s]", "GameResultService", "AddNewOne", m)
 	}()
 
 	r, err := json.Marshal(gameResult)

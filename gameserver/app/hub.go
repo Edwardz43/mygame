@@ -39,17 +39,17 @@ func (h *Hub) run() {
 		select {
 		case client := <-h.register:
 			h.clients[client] = true
-			Logger.Printf("client connected : memberID=[%v]", client.memberID)
+			logger.Printf("client connected : memberID=[%v]", client.memberID)
 		case client := <-h.unregister:
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
 				close(client.send)
 			}
-			Logger.Printf("client disconnect : memberID=[%v]", client.memberID)
+			logger.Printf("client disconnect : memberID=[%v]", client.memberID)
 		case pMessage := <-h.send:
 			c := pMessage.client
 			c.send <- pMessage.message
-			Logger.Printf("personal message : memberID=[%v], message=[%v]", pMessage.client.memberID, string(pMessage.message))
+			logger.Printf("personal message : memberID=[%v], msg=[%v]", pMessage.client.memberID, string(pMessage.message))
 		case message := <-h.broadcast:
 			for client := range h.clients {
 				select {
@@ -59,7 +59,7 @@ func (h *Hub) run() {
 					delete(h.clients, client)
 				}
 			}
-			Logger.Printf("broadcast : message=[%v]", string(message))
+			logger.Printf("broadcast : msg=[%v]", string(message))
 		}
 	}
 }

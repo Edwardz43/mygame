@@ -69,10 +69,9 @@ func (c *Client) readPump() {
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
 		_, message, err := c.conn.ReadMessage()
-		// Logger.Printf("readPump message : [%v]", message)
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				Logger.Printf("error: %v", err)
+				logger.Printf("error: %v", err)
 			}
 			break
 		}
@@ -99,7 +98,7 @@ func (c *Client) readPump() {
 		err = json.Unmarshal(message, &d)
 		errHandle(err)
 		// Logger.Printf("event: [%v], messgae: [%v]", d.Event, d.Message)
-		Command <- d
+		command <- d
 		// switch d.Event {
 		// case "201":
 
@@ -140,7 +139,7 @@ func (c *Client) writePump() {
 			d := new(Data)
 			err = json.Unmarshal(message, &d)
 			if err != nil {
-				Logger.Println(err)
+				logger.Println(err.Error())
 			}
 			// Logger.Println(d)
 			w.Write(message)
@@ -167,7 +166,7 @@ func (c *Client) writePump() {
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		Logger.Println(err)
+		logger.Println(err.Error())
 		return
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
