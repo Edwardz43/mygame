@@ -14,28 +14,38 @@ import (
 )
 
 var (
-	isGaming          bool
-	engine            *gin.Engine
-	conn              *websocket.Conn
-	hub               *Hub
-	gameResultService *service.GameResultService
-	lobbyService      *service.LobbyService
-	upGrader          = websocket.Upgrader{
+	isGaming bool
+
+	engine   *gin.Engine
+	conn     *websocket.Conn
+	hub      *Hub
+	upGrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
 	}
+
+	gameResultService *service.GameResultService
+	lobbyService      *service.LobbyService
+	memberService     *service.MemberService
+
 	gameResult *GameResult
 	gameBase   GameBase
-	run        int64
-	inn        int
-	status     int8
-	command    chan *Data
-	logger     *log.Logger
+
+	run     int64
+	inn     int
+	status  int8
+	command chan *Data
+	logger  *log.Logger
 )
 
 func init() {
-	logger = log.Create("gs")
+	logger = log.Create("gameserver")
+	gameResultService = service.GetGameResultInstance()
+	lobbyService = service.GetLobbyInstance()
+	memberService = service.GetLoginInstance()
+	hub = newHub()
+	engine = gin.Default()
 }
 
 func errHandle(err error) {
@@ -97,13 +107,23 @@ func serveWebsocket(c *gin.Context) {
 
 func serve() {
 	// resource
-	engine.LoadHTMLFiles("./resource/game.html")
 	engine.Static("/static", "./resource")
 
 	// index
+	engine.GET("/", func(c *gin.Context) {
+		engine.LoadHTMLFiles("./resource/index.html")
+		c.HTML(http.StatusOK, "index.html", nil)
+	})
+
+	// login
+	engine.POST("/login", login)
+
+	// register
+	engine.POST("/register", register)
 
 	// game
-	engine.GET("/", func(c *gin.Context) {
+	engine.GET("/game", func(c *gin.Context) {
+		engine.LoadHTMLFiles("./resource/game.html")
 		c.HTML(http.StatusOK, "game.html", nil)
 	})
 
@@ -251,10 +271,6 @@ func maintain() {}
 // Startup starts process.
 func Startup() {
 	// isGaming = false
-	gameResultService = service.GetGameResultInstance()
-	lobbyService = service.GetLobbyInstance()
-	hub = newHub()
-	engine = gin.Default()
 	go hub.run()
 	go start(hub, &DiceGame{})
 	serve()

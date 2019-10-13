@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="shortcut icon" href="/static/favicon.ico">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Index</title>    
+    <link rel="stylesheet" href="/static/css/login.css">
+    <!-- <link rel="stylesheet" href="index.css"> -->
+    <!-- <link rel="stylesheet" href="modal.css"> -->
+</head>
+
+<body>
+    <div id="mydiv">
+        <div id="log">Login</div>
+        <div id="reg">Register</div>
+        <form id="login-form" class="form-grp" action="login" method="POST">
+            <label>username/e-mail</label><br />
+            <input id='input-name' class="input-grp" type='text' placeholder='type username' name='username'/><br />
+            <label>password</label><br />
+            <input id='input-password' class="input-grp" type='password' placeholder='*************' name='password'/><br />
+            <input id='login-btn' class="input-btn" type='submit' value='Login' />
+            <p><a id='forget-password' href='#'>forget password ?</a></p><br />
+        </form>
+        <form id="register-form" class="form-grp" action="register" method="POST">          
+            <label>username</label><br />
+            <input class="input-grp" type='text' placeholder='user name' name='username'/><br />
+            <label>e-mail</label><br />
+            <input class="input-grp" type='email' placeholder='your email' name='email'/><br />
+            <label>password</label><br />
+            <input class="input-grp" type='password' placeholder='*************' name='password'/><br />
+            <label>confirm password</label><br />
+            <input class="input-grp" type='password' placeholder='*************' /><br />
+            <input id='reg-btn' class="input-btn" type='submit' value='Register' />
+        </form>
+    </div>
+    <script>
+        var div = document.getElementById('mydiv'),
+            log = document.getElementById('log'),
+            reg = document.getElementById('reg'),
+            loginForm = document.getElementById('login-form'),
+            registerForm = document.getElementById('register-form');
+
+        // hide register form and show login form
+        reg.onclick = function () {
+            this.style.color = '#fff';
+            log.style.color = '#888';
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+        };
+
+        // hide login form and show register form
+        log.onclick = function () {
+            this.style.color = '#fff';
+            reg.style.color = '#888';
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+        };
+        registerForm.style.display = 'none';
+
+        //btn behaviors
+
+    </script>
+</body>
+
+</html>
