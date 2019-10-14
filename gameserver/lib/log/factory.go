@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Edwardz43/logrustash"
+	"github.com/Edwardz43/mygame/gameserver/config"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -59,8 +60,9 @@ func Create(t string) *Logger {
 		},
 	}
 
-	hook, err := logrustash.NewHook("tcp", "192.168.1.103:5000", t)
+	url := config.GetLogstashConfig()
 
+	hook, err := logrustash.NewHook("tcp", url, t)
 	if err != nil {
 		fmt.Println(err)
 	}

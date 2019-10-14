@@ -57,3 +57,23 @@ func GetDBConfigV2() string {
 	// host=127.0.0.1 port=15432 user=admin dbname=postgres password=password sslmode=disable
 	return fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s", dbHost, dbPort, dbUser, dbName, dbPass, dbssl)
 }
+
+// GetLogstashConfig ...
+func GetLogstashConfig() string {
+	viper.SetConfigType("json")
+	viper.AddConfigPath("./")
+	viper.AddConfigPath("../")
+	viper.AddConfigPath("../../")
+	viper.SetConfigName("config")
+	err := viper.ReadInConfig()
+	if err != nil {
+		panic(err)
+	}
+
+	if viper.GetBool(`debug`) {
+		fmt.Println("Service RUN on DEBUG mode")
+	}
+	host := viper.GetString(`logstash.host`)
+	port := viper.GetString(`logstash.port`)
+	return host + ":" + port
+}

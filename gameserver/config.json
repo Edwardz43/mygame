@@ -20,5 +20,9 @@
       "pass": "test",
       "name": "postgres",
       "sslmode" : "disable"
+    },
+    "logstash":{
+      "host":"192.168.1.101",
+      "port":"5000"      
     }
   }

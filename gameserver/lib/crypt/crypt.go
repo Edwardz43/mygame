@@ -49,3 +49,9 @@ func Decrypt(data []byte, passphrase string) []byte {
 	}
 	return plaintext
 }
+
+// GetToken ...
+func GetToken(sourceData string) string {
+	//TODO
+	return ""
+}
