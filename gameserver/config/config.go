@@ -6,9 +6,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// GetDBConfig ...
-func GetDBConfig() string {
-	// viper.SetConfigFile(`config.json`)
+func init() {
 	viper.SetConfigType("json")
 	viper.AddConfigPath("./")
 	viper.AddConfigPath("../")
@@ -22,7 +20,10 @@ func GetDBConfig() string {
 	if viper.GetBool(`debug`) {
 		fmt.Println("Service RUN on DEBUG mode")
 	}
+}
 
+// GetDBConfig ...
+func GetDBConfig() string {
 	dbHost := viper.GetString(`mysqldb.host`)
 	dbPort := viper.GetString(`mysqldb.port`)
 	dbUser := viper.GetString(`mysqldb.user`)
@@ -33,21 +34,6 @@ func GetDBConfig() string {
 
 // GetDBConfigV2 ...
 func GetDBConfigV2() string {
-	// viper.SetConfigFile(`config.json`)
-	viper.SetConfigType("json")
-	viper.AddConfigPath("./")
-	viper.AddConfigPath("../")
-	viper.AddConfigPath("../../")
-	viper.SetConfigName("config")
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-
-	if viper.GetBool(`debug`) {
-		fmt.Println("Service RUN on DEBUG mode")
-	}
-
 	dbHost := viper.GetString(`postgresdb.host`)
 	dbPort := viper.GetString(`postgresdb.port`)
 	dbUser := viper.GetString(`postgresdb.user`)
@@ -60,20 +46,14 @@ func GetDBConfigV2() string {
 
 // GetLogstashConfig ...
 func GetLogstashConfig() string {
-	viper.SetConfigType("json")
-	viper.AddConfigPath("./")
-	viper.AddConfigPath("../")
-	viper.AddConfigPath("../../")
-	viper.SetConfigName("config")
-	err := viper.ReadInConfig()
-	if err != nil {
-		panic(err)
-	}
-
-	if viper.GetBool(`debug`) {
-		fmt.Println("Service RUN on DEBUG mode")
-	}
 	host := viper.GetString(`logstash.host`)
 	port := viper.GetString(`logstash.port`)
 	return host + ":" + port
+}
+
+// GetELKConfig ...
+func GetELKConfig() bool {
+	isEnabled := viper.GetBool(`ELK.isEnabled`)
+
+	return isEnabled
 }

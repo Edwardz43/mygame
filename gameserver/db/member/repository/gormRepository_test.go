@@ -1,6 +1,7 @@
 package repository_test
 
 import (
+	"github.com/Edwardz43/mygame/gameserver/db/models"
 	"testing"
 
 	"github.com/Edwardz43/mygame/gameserver/db/member/repository"
@@ -19,7 +20,7 @@ func TestLoginWithNameShouldReturnSuccess(t *testing.T) {
 	}
 	defer db.Close()
 
-	// db.AutoMigrate(&models.Member{})
+	db.AutoMigrate(&models.Member{})
 
 	repo := repository.GetMemberInstance(db)
 

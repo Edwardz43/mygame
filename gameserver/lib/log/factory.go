@@ -60,14 +60,16 @@ func Create(t string) *Logger {
 		},
 	}
 
-	url := config.GetLogstashConfig()
+	if config.GetELKConfig() == true {
+		url := config.GetLogstashConfig()
 
-	hook, err := logrustash.NewHook("tcp", url, t)
-	if err != nil {
-		fmt.Println(err)
+		hook, err := logrustash.NewHook("tcp", url, t)
+		if err != nil {
+			fmt.Println(err)
+		}
+		hook.TimeFormat = "2006-01-02 15:04:05.000"
+		logger.Hooks.Add(hook)
 	}
-	hook.TimeFormat = "2006-01-02 15:04:05.000"
-	logger.Hooks.Add(hook)
 
 	return &Logger{
 		log: logger,

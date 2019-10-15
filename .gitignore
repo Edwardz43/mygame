@@ -18,5 +18,10 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 
+.idea/
+.env
+
 logs
 gameserver/gameserver
+gameserver/config/config_test.go
+gameserver/db/config.json
