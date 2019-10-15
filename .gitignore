@@ -24,4 +24,5 @@
 logs
 gameserver/gameserver
 gameserver/config/config_test.go
+config.json
 gameserver/db/config.json
