@@ -22,7 +22,7 @@ func GetLoginInstance() *MemberService {
 
 // Login ...
 func (service *MemberService) Login(nameOrEmail string) (uint, error) {
-	logger.Printf("parameters [%d]", nameOrEmail)
+	logger.Printf("parameters [%v]", nameOrEmail)
 	return service.Repo.GetOne(nameOrEmail)
 }
 

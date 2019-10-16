@@ -6,19 +6,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type member struct {
+	Name     string `json:"username"`
+	Password string `json:"password"`
+}
+
 func login(c *gin.Context) {
-	// pw, exist := c.Get("username")
-	name := c.PostForm("username")
-	pw := c.PostForm("password")
-	fmt.Printf("name[%v], pw[%v]\n", name, pw)
-
-	memberID, err := memberService.Login(name)
-
+	var m *member
+	c.BindJSON(&m)
+	fmt.Printf("name[%v], pw[%v]\n", m.Name, m.Password)
+	memberID, err := memberService.Login(m.Name)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(401, err.Error())
 	}
-
 	c.JSON(200, memberID)
 }
 

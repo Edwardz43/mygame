@@ -61,7 +61,7 @@ function connect() {
         switch (obj.event) {
             case COMMAND_CONNECTED:
                 console.log("ws connected")
-                register();
+                register(); 
                 getTableStatus();
                 break;
             case COMMAND_NEW_RUN:

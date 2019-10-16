@@ -6,42 +6,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Index</title>    
+    <title>Index</title>
     <link rel="stylesheet" href="/static/css/login.css">
-    <!-- <link rel="stylesheet" href="index.css"> -->
-    <!-- <link rel="stylesheet" href="modal.css"> -->
+    <link rel="stylesheet" href="/static/css/game.css">    
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="http://www.w3schools.com/lib/w3data.js"></script>
 </head>
 
 <body>
     <div id="mydiv">
         <div id="log">Login</div>
         <div id="reg">Register</div>
-        <form id="login-form" class="form-grp" action="login" method="POST">
+        <div id="login-form" class="form-grp">
             <label>username/e-mail</label><br />
-            <input id='input-name' class="input-grp" type='text' placeholder='type username' name='username'/><br />
+            <input id='input-name' class="input-grp" type='text' placeholder='type username' name='username' /><br />
             <label>password</label><br />
-            <input id='input-password' class="input-grp" type='password' placeholder='*************' name='password'/><br />
-            <input id='login-btn' class="input-btn" type='submit' value='Login' />
+            <input id='input-password' class="input-grp" type='password' placeholder='*************'
+                name='password' /><br />
+            <button id='login-btn' class="input-btn">Login</button>
             <p><a id='forget-password' href='#'>forget password ?</a></p><br />
-        </form>
-        <form id="register-form" class="form-grp" action="register" method="POST">          
+        </div>
+        <form id="register-form" class="form-grp" action="register" method="POST">
             <label>username</label><br />
-            <input class="input-grp" type='text' placeholder='user name' name='username'/><br />
+            <input class="input-grp" type='text' placeholder='user name' name='username' /><br />
             <label>e-mail</label><br />
-            <input class="input-grp" type='email' placeholder='your email' name='email'/><br />
+            <input class="input-grp" type='email' placeholder='your email' name='email' /><br />
             <label>password</label><br />
-            <input class="input-grp" type='password' placeholder='*************' name='password'/><br />
+            <input class="input-grp" type='password' placeholder='*************' name='password' /><br />
             <label>confirm password</label><br />
             <input class="input-grp" type='password' placeholder='*************' /><br />
             <input id='reg-btn' class="input-btn" type='submit' value='Register' />
         </form>
     </div>
     <script>
-        var div = document.getElementById('mydiv'),
+        let div = document.getElementById('mydiv'),
             log = document.getElementById('log'),
             reg = document.getElementById('reg'),
             loginForm = document.getElementById('login-form'),
-            registerForm = document.getElementById('register-form');
+            registerForm = document.getElementById('register-form'),
+            login_btn = document.getElementById('login-btn');
 
         // hide register form and show login form
         reg.onclick = function () {
@@ -61,6 +64,137 @@
         registerForm.style.display = 'none';
 
         //btn behaviors
+        login_btn.onclick = function () {
+            // console.log("login");
+            let name = document.getElementById('input-name').value;
+            let password = document.getElementById('input-password').value;
+            let member = { username: name, password: password };
+
+            axios({
+                method: 'post',
+                url: '/login',
+                data: member
+            })
+                .then(function (response) {
+                    console.log('Success:', response)
+                    let body = document.getElementsByTagName("body")[0];
+                    body.innerHTML = '<div w3-include-html="/static/game.html"></div>';
+                    w3IncludeHTML();
+                    gameStart();
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
+
+        let gameStart = function () {
+
+            // const connectBtn = document.querySelector("#connect");
+            let isGaming = false;
+            let timmer;
+            let ws;
+
+            const COMMAND_CONNECTED = "200",
+                COMMAND_NEW_RUN = "201",
+                COMMAND_SHOWDOWN = "202",
+                COMMAND_RESULT = "203",
+                COMMAND_BET = "204";
+
+            function showStatus(status) {
+                document.querySelector("#status").innerHTML = status;
+            }
+
+            function bgChange() {
+                let count = 1;
+                let oldClass = "bg1";
+                setInterval(function () {
+                    // console.log("bgchange()");
+                    count = count % 2 + 1;
+                    document.getElementById("container").classList.replace(oldClass, "bg" + count);
+                    oldClass = "bg" + count;
+                }, 10 * 1000)
+            }
+
+            function showGameResult(obj) {
+                console.log(obj)
+                detail = obj.game_detail
+                document.querySelector("#run").innerHTML = obj.run;
+                document.querySelector("#inn").innerHTML = obj.inn;
+                let index = 1;
+                [...document.querySelectorAll(".dice")].forEach(function (Element) {
+                    Element.setAttribute("src", "/static/img/game/dice/" + detail["d" + index] + ".jpg");
+                    index++;
+                })
+            }
+
+            function startNewRun(obj) {
+                let cd = obj.message;
+                // let cd = 10;
+                console.log(cd);
+                timmer = function () {
+                    if (cd >= 0) {
+                        document.querySelector("#countdown").innerHTML = cd--;
+                        setTimeout(timmer, 1000);
+                    }
+                }
+                timmer();
+            }
+
+            function connect() {
+                let counter = 5;
+
+                ws = new WebSocket("ws://localhost:8090/ws");
+
+                ws.onmessage = (message) => {
+                    // console.table(message.data)
+                    let obj = JSON.parse(message.data);
+                    switch (obj.event) {
+                        case COMMAND_CONNECTED:
+                            console.log("ws connected")
+                            register();
+                            getTableStatus();
+                            break;
+                        case COMMAND_NEW_RUN:
+                            showStatus("New Run");
+                            startNewRun(obj);
+                            break;
+                        case COMMAND_SHOWDOWN:
+                            showStatus("Show Down");
+                            showGameResult(JSON.parse(obj.message));
+                        case COMMAND_RESULT:
+                            showStatus("Settlement");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+                ws.onclose = function (evt) {
+                    if (counter >= 0) {
+                        console.log("Connection close")
+                        setTimeout(function () {
+                            counter--;
+                            connect();
+                        }, 5000)
+                    }
+
+                };
+            }
+
+            function register() {
+                console.log("send login")
+                let data = { event: '200', message: '{"name":"edlo", "email":"test@example.com", "password":"8888"}' }
+                ws.send(JSON.stringify(data))
+            }
+
+            function getTableStatus() {
+                console.log("send getTableStatus")
+                let data = { event: '300', message: '{"table":"dice"' }
+                ws.send(JSON.stringify(data))
+            }
+
+            connect();
+            bgChange();
+        }
 
     </script>
 </body>
