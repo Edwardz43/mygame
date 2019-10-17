@@ -54,6 +54,11 @@ func GetLogstashConfig() string {
 // GetELKConfig ...
 func GetELKConfig() bool {
 	isEnabled := viper.GetBool(`ELK.isEnabled`)
-
 	return isEnabled
+}
+
+// GetTokenKey ...
+func GetTokenKey() string {
+	key := viper.GetString(`Token.key`)
+	return key
 }

@@ -6,7 +6,10 @@ import (
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/hex"
+	"fmt"
+	"github.com/Edwardz43/mygame/gameserver/config"
 	"io"
+	"time"
 )
 
 func createHash(key string) string {
@@ -52,6 +55,15 @@ func Decrypt(data []byte, passphrase string) []byte {
 
 // GetToken ...
 func GetToken(sourceData string) string {
-	//TODO
-	return ""
+	now := time.Now().Format("20060102")
+
+	key := config.GetTokenKey()
+
+	src := []byte(now + key)
+
+	dst := make([]byte, hex.EncodedLen(len(src)))
+
+	hex.Encode(dst, src)
+
+	return fmt.Sprintf("%s", dst)
 }

@@ -52,8 +52,8 @@ function startNewRun(obj) {
 
 function connect() {
     let counter = 5;
-
-    ws = new WebSocket("ws://localhost:8090/ws");
+    console.log("token=" + token)
+    ws = new WebSocket("ws://localhost:8090/ws?token=" + token);
 
     ws.onmessage = (message) => {
         // console.table(message.data)

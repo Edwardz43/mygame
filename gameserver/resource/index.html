@@ -46,6 +46,8 @@
             registerForm = document.getElementById('register-form'),
             login_btn = document.getElementById('login-btn');
 
+        let token;            
+
         // hide register form and show login form
         reg.onclick = function () {
             this.style.color = '#fff';
@@ -75,19 +77,20 @@
                 url: '/login',
                 data: member
             })
-                .then(function (response) {
-                    console.log('Success:', response)
-                    let body = document.getElementsByTagName("body")[0];
-                    body.innerHTML = '<div w3-include-html="/static/game.html"></div>';
-                    w3IncludeHTML();                    
-                    let script = document.createElement('script');
-                    // script.onload = function () {
-                    //     alert("Script loaded and ready");
-                    // };
-                    script.src = "/static/js/handler.js";
-                    document.getElementsByTagName('head')[0].appendChild(script);
-                })
-                .catch(error => console.error('Error:', error));
+            .then(function (response) {
+                console.log('Success:', response)
+                token = response.data;                
+                let body = document.getElementsByTagName("body")[0];
+                body.innerHTML = '<div w3-include-html="/static/game.html"></div>';
+                w3IncludeHTML();                    
+                let script = document.createElement('script');
+                // script.onload = function () {
+                //     alert("Script loaded and ready");
+                // };
+                script.src = "/static/js/handler.js";
+                document.getElementsByTagName('head')[0].appendChild(script);
+            })
+            .catch(error => console.error('Error:', error));
         }
     </script>
 </body>

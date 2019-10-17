@@ -2,6 +2,8 @@ package gameserver
 
 import (
 	"fmt"
+	"github.com/Edwardz43/mygame/gameserver/lib/crypt"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +22,9 @@ func login(c *gin.Context) {
 		fmt.Println(err)
 		c.JSON(401, err.Error())
 	}
-	c.JSON(200, memberID)
+	result := crypt.GetToken(strconv.Itoa(int(memberID)))
+	tokenMap[result] = true
+	c.JSON(200, result)
 }
 
 func register(c *gin.Context) {

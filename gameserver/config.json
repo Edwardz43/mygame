@@ -26,6 +26,10 @@
       "port":"5000"      
     },
     "ELK":{
-      "isEnabled":true
+      "isEnabled":false
+    },
+    "Token":{
+      "key":"ggininder"
     }
+
   }

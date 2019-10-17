@@ -1,6 +1,7 @@
 package crypt_test
 
 import (
+	"log"
 	"testing"
 
 	crypt "github.com/Edwardz43/mygame/gameserver/lib/crypt"
@@ -15,4 +16,10 @@ func TestEncryptAndDecrypt(t *testing.T) {
 	plaintext := crypt.Decrypt(ciphertext, "password")
 
 	assert.Equal(t, testString, plaintext)
+}
+
+func TestGetToken(t *testing.T) {
+	tt := crypt.GetToken(`test`)
+	log.Println(tt)
+	assert.NotNil(t, tt)
 }
