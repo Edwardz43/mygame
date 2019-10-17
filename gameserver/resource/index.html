@@ -46,7 +46,7 @@
             registerForm = document.getElementById('register-form'),
             login_btn = document.getElementById('login-btn');
 
-        let token;            
+        let memberID;            
 
         // hide register form and show login form
         reg.onclick = function () {
@@ -79,7 +79,7 @@
             })
             .then(function (response) {
                 console.log('Success:', response)
-                token = response.data;                
+                memberID = response.data;                
                 let body = document.getElementsByTagName("body")[0];
                 body.innerHTML = '<div w3-include-html="/static/game.html"></div>';
                 w3IncludeHTML();                    

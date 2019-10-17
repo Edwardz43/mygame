@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/Edwardz43/mygame/gameserver/app/service"
@@ -62,53 +61,55 @@ func errHandle(err error) {
 
 func serveWebsocket(c *gin.Context) {
 	// flag.Parse()
-	token := strings.Split(c.Request.URL.RawQuery, "=")[1]
-	if tokenMap[token] {
-		conn, err := upGrader.Upgrade(c.Writer, c.Request, nil)
-		errHandle(err)
-		client := &Client{
-			hub:  hub,
-			conn: conn,
-			send: make(chan []byte, 256),
-		}
-		client.hub.register <- client
+	memberID := c.Query("memberID")
+	id, _ := strconv.Atoi(memberID)
+	// if tokenMap[token] {
+	conn, err := upGrader.Upgrade(c.Writer, c.Request, nil)
+	errHandle(err)
+	client := &Client{
+		memberID: uint(id),
+		hub:      hub,
+		conn:     conn,
+		send:     make(chan []byte, 256),
+	}
+	client.hub.register <- client
 
-		msg := Data{
-			Event:   "200",
-			Message: "",
-		}
+	msg := Data{
+		Event:   "200",
+		Message: "",
+	}
 
-		d, err := json.Marshal(msg)
+	d, err := json.Marshal(msg)
 
-		errHandle(err)
+	errHandle(err)
 
-		hub.send <- &PersonalMessage{
-			client:  client,
-			message: d,
-		}
+	hub.send <- &PersonalMessage{
+		client:  client,
+		message: d,
+	}
 
-		command = make(chan *Data)
+	command = make(chan *Data)
 
-		// Allow collection of memory referenced by the caller by doing all work in
-		// new goroutines.
-		go client.writePump()
-		go client.readPump()
+	// Allow collection of memory referenced by the caller by doing all work in
+	// new goroutines.
+	go client.writePump()
+	go client.readPump()
 
-		for {
-			command := <-command
+	for {
+		command := <-command
 
-			switch command.Event {
-			case "300":
-				logger.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
-			case "200": // register member to ws client
-				logger.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
-				m := new(models.Member)
-				json.Unmarshal([]byte(command.Message), &m)
-				client.memberID = m.ID
-				logger.Printf("MEMBER : [%v]", client.memberID)
-			}
+		switch command.Event {
+		case "300":
+			logger.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
+		case "200": // register member to ws client
+			logger.Printf("COMMAND : [%v], DATA: [%v]", command.Event, command.Message)
+			m := new(models.Member)
+			json.Unmarshal([]byte(command.Message), &m)
+			client.memberID = m.ID
+			logger.Printf("MEMBER : [%v]", client.memberID)
 		}
 	}
+	// }
 
 }
 
