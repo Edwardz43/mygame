@@ -26,15 +26,15 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "15432:5432"
-    # volumes:
-    #   - ${POSTGRES_VOLUME}:/var/lib/postgresql/data 
+    volumes: 
+      - postgres:/var/lib/postgresql/data
     networks:
       - mygame
       
   pgadmin:
     container_name:
       pgadmin
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:latest
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: "test@com.tw"
@@ -64,3 +64,6 @@ services:
 networks: 
   mygame:
     driver: bridge
+
+volumes:
+  postgres:   
