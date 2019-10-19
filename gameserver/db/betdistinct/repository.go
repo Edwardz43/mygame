@@ -1,4 +1,4 @@
-package member
+package betdistinct
 
 // Repository ...
 type Repository interface {

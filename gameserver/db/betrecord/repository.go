@@ -1,4 +1,4 @@
-package member
+package betrecord
 
 // Repository ...
 type Repository interface {

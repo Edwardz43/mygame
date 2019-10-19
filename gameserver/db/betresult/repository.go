@@ -1,4 +1,4 @@
-package member
+package betresult
 
 // Repository ...
 type Repository interface {
