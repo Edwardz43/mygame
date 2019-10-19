@@ -2,13 +2,19 @@
 // const connectBtn = document.querySelector("#connect");
 let isGaming = false;
 let timmer;
-let ws;    
+let ws;
+let betBtnList = [];
 
 const COMMAND_CONNECTED = "200",
     COMMAND_NEW_RUN = "201",
     COMMAND_SHOWDOWN = "202",
     COMMAND_RESULT = "203",
     COMMAND_BET = "204";
+
+const btn_dice_big = document.getElementById("dice-big"),
+    btn_dice_small = document.getElementById("dice-small"),
+    btn_dice_odd = document.getElementById("dice-odd"),
+    btn_dice_even = document.getElementById("dice-even");
 
 function showStatus(status) {
     document.querySelector("#status").innerHTML = status;
@@ -61,7 +67,7 @@ function connect() {
         switch (obj.event) {
             case COMMAND_CONNECTED:
                 console.log("ws connected")
-                register(); 
+                register();
                 getTableStatus();
                 break;
             case COMMAND_NEW_RUN:
@@ -88,20 +94,57 @@ function connect() {
             }, 5000)
         }
 
-    };    
+    };
 }
 
 function register() {
     console.log("send login")
-    let data = {event: '200', message : '{"name":"edlo", "email":"test@example.com", "password":"8888"}'}
+    let data = { event: '200', message: '{"name":"edlo", "email":"test@example.com", "password":"8888"}' }
     ws.send(JSON.stringify(data))
 }
 
 function getTableStatus() {
     console.log("send getTableStatus")
-    let data = {event: '300', message : '{"table":"dice"'}
+    let data = { event: '300', message: '{"table":"dice"' }
     ws.send(JSON.stringify(data))
 }
 
+function bet(betArea) {
+    console.log("bet")
+    let data = { event: '301', message: '{"game":"dice", "bet-area":"'+ betArea +'", "amount":"100"' }
+    ws.send(JSON.stringify(data))
+}
+
+function init() {
+
+    let btnElementList = document.getElementsByClassName("bet-btn")
+
+    // window.a = a;
+    Array.from(btnElementList).map(element => {
+        element.onmouseenter = function(e) {
+            e.path[0].classList.add("btn-toggle");
+        }
+
+        element.onmouseleave = function(e) {
+            e.path[0].classList.remove("btn-toggle");
+        }        
+
+        element.onclick = function (e) {
+            console.log(e.path[0].id);
+            bet(e.path[0].id);
+        }        
+    })
+
+    // Betting
+    // let betBtn = {};
+
+    // betBtn.child = document.getElementById("dice-big");
+
+    // window.b = betBtn;
+}
+
+
+
+init();
 connect();
 bgChange();

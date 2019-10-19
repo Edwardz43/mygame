@@ -1,14 +1,14 @@
-package gameserver_test
+package gamelogic_test
 
 import (
 	"testing"
 
-	gameserver "github.com/Edwardz43/mygame/gameserver/app"
+	"github.com/Edwardz43/mygame/gameserver/app/gamelogic"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewGame(t *testing.T) {
-	g := gameserver.DiceGame{}
+	g := gamelogic.DiceGame{}
 	gameResult := g.NewGame()
 	assert.NotNil(t, gameResult)
 	// assert.NotNil(t, gameResult.GameType)

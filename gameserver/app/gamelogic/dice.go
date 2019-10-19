@@ -1,13 +1,9 @@
-package gameserver
+package gamelogic
 
 import (
 	"math/rand"
 	"time"
 )
-
-var duration = time.Second * 20
-var showDownTime = time.Second * 3
-var settlementTime = time.Second * 5
 
 // DiceGameDetail ...
 type DiceGameDetail struct {

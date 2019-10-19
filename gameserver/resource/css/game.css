@@ -32,3 +32,19 @@
 .info{
     display: inline-block;
 }
+
+.bet-area{
+    width: 100%;
+}
+
+.dice-area {
+    float: left;
+    width:24%;
+    border: 1px solid;
+    text-align: center;    
+    background-color:rgb(110, 196, 117);
+}
+
+.btn-toggle {
+    background-color:rgb(39, 99, 43);
+}
