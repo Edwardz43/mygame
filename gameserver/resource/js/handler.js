@@ -5,6 +5,13 @@ let timmer;
 let ws;
 let betBtnList = [];
 
+const StatusMap = {
+    1: "New Run",
+    2: "Show Down",
+    3: "Settlement"
+
+}
+
 const COMMAND_CONNECTED = "200",
     COMMAND_NEW_RUN = "201",
     COMMAND_SHOWDOWN = "202",
@@ -23,8 +30,7 @@ function showStatus(status) {
 function bgChange() {
     let count = 1;
     let oldClass = "bg1";
-    setInterval(function () {
-        // console.log("bgchange()");
+    setInterval(function () {     
         count = count % 2 + 1;
         document.getElementById("container").classList.replace(oldClass, "bg" + count);
         oldClass = "bg" + count;
@@ -32,7 +38,7 @@ function bgChange() {
 }
 
 function showGameResult(obj) {
-    console.log(obj)
+    //console.log(obj)
     detail = obj.game_detail
     document.querySelector("#run").innerHTML = obj.run;
     document.querySelector("#inn").innerHTML = obj.inn;
@@ -43,10 +49,9 @@ function showGameResult(obj) {
     })
 }
 
-function startNewRun(obj) {
-    let cd = obj.message;
+function startNewRun(cd) {
     // let cd = 10;
-    console.log(cd);
+    //console.log(cd);
     timmer = function () {
         if (cd >= 0) {
             document.querySelector("#countdown").innerHTML = cd--;
@@ -58,27 +63,32 @@ function startNewRun(obj) {
 
 function connect() {
     let counter = 5;
-    console.log("memberID=" + memberID)
+    //console.log("memberID=" + memberID)
     ws = new WebSocket("ws://localhost:8090/ws?memberID=" + memberID);
 
     ws.onmessage = (message) => {
-        // console.table(message.data)
+        //console.table(message.data)
         let obj = JSON.parse(message.data);
+        //console.log(new Date().toLocaleString() + " " + obj.event)
         switch (obj.event) {
             case COMMAND_CONNECTED:
-                console.log("ws connected")
+                console.log(obj)
                 register();
-                getTableStatus();
+                getTableStatus(obj);
                 break;
             case COMMAND_NEW_RUN:
                 showStatus("New Run");
-                startNewRun(obj);
+                startNewRun(obj.message);
+                // console.log(new Date().toLocaleString() + " New Run")
                 break;
             case COMMAND_SHOWDOWN:
                 showStatus("Show Down");
+                // console.log(new Date().toLocaleString() + " Show Down")
                 showGameResult(JSON.parse(obj.message));
+                break;
             case COMMAND_RESULT:
                 showStatus("Settlement");
+                // console.log(new Date().toLocaleString() + " Settlement")
                 break;
             default:
                 break;
@@ -103,15 +113,10 @@ function register() {
     ws.send(JSON.stringify(data))
 }
 
-function getTableStatus() {
-    console.log("send getTableStatus")
-    let data = { event: '300', message: '{"table":"dice"' }
-    ws.send(JSON.stringify(data))
-}
 
-function bet(betArea) {
+function bet(game, betArea) {
     console.log("bet")
-    let data = { event: '301', message: '{"game":"dice", "bet-area":"'+ betArea +'", "amount":"100"' }
+    let data = { event: '301', message: '{"game":' + game + ', "bet-area":"' + betArea + '", "amount":100}' }
     ws.send(JSON.stringify(data))
 }
 
@@ -121,18 +126,19 @@ function init() {
 
     // window.a = a;
     Array.from(btnElementList).map(element => {
-        element.onmouseenter = function(e) {
+        element.onmouseenter = function (e) {
             e.path[0].classList.add("btn-toggle");
         }
 
-        element.onmouseleave = function(e) {
+        element.onmouseleave = function (e) {
             e.path[0].classList.remove("btn-toggle");
-        }        
+        }
 
         element.onclick = function (e) {
-            console.log(e.path[0].id);
-            bet(e.path[0].id);
-        }        
+            // window.e = e.path[0]
+            let data = e.path[0].dataset
+            bet(data.game, data.area);
+        }
     })
 
     // Betting
@@ -143,7 +149,17 @@ function init() {
     // window.b = betBtn;
 }
 
+function getTableStatus(data) {
+    console.log("set table status")
 
+    let d = JSON.parse(data.message)
+    console.log(d)
+
+    document.querySelector("#run").innerHTML = d.Run;
+    document.querySelector("#inn").innerHTML = d.Inn;
+    showStatus(StatusMap[d.Status])
+    startNewRun(d.Countdown - 1)
+}
 
 init();
 connect();

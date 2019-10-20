@@ -1,10 +1,11 @@
 package repository
 
 import (
-	"github.com/Edwardz43/mygame/gameserver/db/models"
-	"github.com/jinzhu/gorm"
 	"strconv"
 	"time"
+
+	"github.com/Edwardz43/mygame/gameserver/db/models"
+	"github.com/jinzhu/gorm"
 )
 
 // LobbyRepository ...
@@ -37,10 +38,10 @@ func (repo LobbyRepository) Create(gameID int8) (bool, error) {
 }
 
 // GetLatest ..
-func (repo LobbyRepository) GetLatest(gameID int) (int64, int, int8, error) {
+func (repo LobbyRepository) GetLatest(gameID int) (int64, int, int8, int8, error) {
 	var lobby models.Lobby
 	d := repo.db.First(&lobby, "game_id = ?", gameID)
-	return lobby.Run, lobby.Inn, lobby.Status, d.Error
+	return lobby.Run, lobby.Inn, lobby.Status, lobby.Countdown, d.Error
 }
 
 // Update ..
@@ -48,7 +49,17 @@ func (repo LobbyRepository) Update(gameID int, run int64, inn int, status int) e
 	var lobby models.Lobby
 	d := repo.db.First(&lobby, "game_id = ?", gameID)
 
-	d.Model(lobby).Updates(models.Lobby{GameID: int8(gameID), Run: run, Inn: inn, Status: int8(status)})
+	d.Model(lobby).Updates(map[string]interface{}{"game_id": int8(gameID), "run": run, "inn": inn, "status": int8(status)})
+
+	return d.Error
+}
+
+// Countdown ...
+func (repo LobbyRepository) Countdown(gameID int, countdown int8) error {
+	var lobby models.Lobby
+	d := repo.db.First(&lobby, "game_id = ?", gameID)
+
+	d.Model(lobby).Update("countdown", countdown)
 
 	return d.Error
 }

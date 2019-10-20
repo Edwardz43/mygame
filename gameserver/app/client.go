@@ -66,7 +66,7 @@ func (c *Client) readPump() {
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
-		logger.Println("IAMREADING!")
+		// logger.Println("IAMREADING!")
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
@@ -79,7 +79,7 @@ func (c *Client) readPump() {
 		d := new(Data)
 		err = json.Unmarshal(message, &d)
 		errHandle(err)
-		logger.Printf("readPump command: %v", d)
+		// logger.Printf("readPump command: %v", d)
 		command <- d
 	}
 }

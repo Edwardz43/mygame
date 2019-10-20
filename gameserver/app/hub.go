@@ -54,6 +54,7 @@ func (h *Hub) run() {
 			for client := range h.clients {
 				select {
 				case client.send <- message:
+					// log.Printf("client[%v] send message : [%v]\n", client.memberID, string(message))
 				default:
 					close(client.send)
 					delete(h.clients, client)

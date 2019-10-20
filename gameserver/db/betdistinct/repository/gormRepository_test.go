@@ -21,5 +21,10 @@ func TestAutiMigration(t *testing.T) {
 
 	db.AutoMigrate(&models.BetDistinct{})
 
+	// db.Create(&models.BetDistinct{GameID: 1, Distinct: "big", WinFlag: false})
+	// db.Create(&models.BetDistinct{GameID: 1, Distinct: "small", WinFlag: false})
+	// db.Create(&models.BetDistinct{GameID: 1, Distinct: "odd", WinFlag: false})
+	// db.Create(&models.BetDistinct{GameID: 1, Distinct: "even", WinFlag: false})
+
 	assert.Empty(t, db.Error)
 }

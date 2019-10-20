@@ -2,6 +2,7 @@ package gameserver
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -19,15 +20,20 @@ type GameStatus int8
 // COMMAND ...
 type COMMAND int
 
-// betOrder ...
+// betOrder from frontend
+// {"game":1, "bet-area":"even", "amount":"100"}
 type betOrder struct {
-	GameID     int8
-	Run        int64
-	Inn        int
-	MemberID   int
-	DistinctID int
-	Amount     int
+	Game    int8   `json:"game"`
+	BetArea string `json:"bet-area"`
+	Amount  int    `json:"amount"`
 }
+
+// type loginInfo struct {
+// 	Run       int64 `json:"run"`
+// 	Inn       int   `json:"inn"`
+// 	Status    int8  `json:"status"`
+// 	Countdown int8  `json:"countdown"`
+// }
 
 const (
 	NewInn GameStatus = iota + 1
@@ -64,6 +70,7 @@ var (
 	run               int64
 	inn               int
 	status            int8
+	oldCountdown      int8
 	command           chan *Data
 	logger            *log.Logger
 	tokenMap          map[string]bool
@@ -112,9 +119,11 @@ func serveWebsocket(c *gin.Context) {
 
 	hub.register <- client
 
+	nowRun, nowInn, nowStatus, nowCountdown, _ := lobbyService.GetLatest(1)
+
 	d, err := json.Marshal(Data{
 		Event:   "200",
-		Message: "connection success",
+		Message: fmt.Sprintf("{\"Run\":%d, \"Inn\":%d, \"Status\":%d, \"Countdown\":%d}", nowRun, nowInn, nowStatus, nowCountdown),
 	})
 
 	errHandle(err)
@@ -137,9 +146,6 @@ func serveWebsocket(c *gin.Context) {
 			logger.Printf("COMMAND : [%v], DATA: [%v]", c.Event, c.Message)
 
 			switch c.Event {
-			case "200": // login
-				//TODO
-				break
 			case "300": // get table status
 				//TODO
 				break
@@ -149,26 +155,27 @@ func serveWebsocket(c *gin.Context) {
 
 				if err != nil {
 					//TODO
+					d, err = json.Marshal(Data{
+						Event:   "301",
+						Message: err.Error(),
+					})
+				} else {
+					d, err = json.Marshal(Data{
+						Event:   "301",
+						Message: msg,
+					})
 				}
-
-				d, err = json.Marshal(Data{
-					Event:   "301",
-					Message: msg,
-				})
-
-				errHandle(err)
 
 				hub.send <- &PersonalMessage{
 					client:  client,
 					message: d,
 				}
+
 				break
 			}
 
 		}
 	}
-	// }
-
 }
 
 func serve() {
@@ -207,7 +214,7 @@ func start(hub *Hub, gb gamelogic.GameBase) {
 	// for {
 	go gameBase.StartGame()
 
-	run, inn, status, _ = lobbyService.GetLatest(int(gamelogic.Dice))
+	run, inn, status, oldCountdown, _ = lobbyService.GetLatest(int(gamelogic.Dice))
 
 	// if err != nil {
 	// 	panic(err)
@@ -249,7 +256,7 @@ func start(hub *Hub, gb gamelogic.GameBase) {
 // newRun 新輪
 func newRun() {
 	// Logger.Printf("[%s] : [%s]", "hanlder", "newRun")
-	runOld, _, _, err := lobbyService.GetLatest(int(gameBase.GetGameID()))
+	runOld, _, _, _, err := lobbyService.GetLatest(int(gameBase.GetGameID()))
 	errHandle(err)
 	runNow, _ := strconv.Atoi(time.Now().Format("20060102"))
 	if runOld != int64(runNow) {
@@ -284,7 +291,28 @@ func newInn() {
 
 	hub.broadcast <- d
 
-	time.AfterFunc(duration, showDown)
+	// time.AfterFunc(duration, showDown)
+
+	ticker := time.NewTicker(time.Second)
+
+	var count int8
+
+	if oldCountdown == 0 {
+		count = 20
+	} else {
+		count = oldCountdown
+		oldCountdown = 0
+	}
+
+	for count > -1 {
+		select {
+		case <-ticker.C:
+			err := lobbyService.Countdown(int(gameBase.GetGameID()), int8(count))
+			errHandle(err)
+			count--
+		}
+	}
+	showDown()
 }
 
 // showDown 開牌
@@ -335,19 +363,43 @@ func intermission() {}
 func maintain() {}
 
 func bet(memberID uint, msg string) (string, error) {
-	// TODO
-	// var ok = make(chan bool, 0)
 
 	logger.Printf("BETTING ID : [%v], data : [%v]", memberID, msg)
-	i, err := betRecordService.AddNewOne(int8(gamelogic.Dice), run, inn, int(memberID), 1, 100)
+	// TODO
+
+	var b betOrder
+
+	err := json.Unmarshal([]byte(msg), &b)
 	if err != nil {
-		logger.Println("BETTING fail")
-		// done <- false
+		logger.Println("BETTING fail : json unmarshal")
+		return "", err
+	}
+
+	var distinctID int
+
+	switch b.BetArea {
+	case "big":
+		distinctID = 1
+		break
+	case "small":
+		distinctID = 2
+		break
+	case "odd":
+		distinctID = 3
+		break
+	case "even":
+		distinctID = 4
+		break
+	}
+
+	i, err := betRecordService.AddNewOne(int8(b.Game), run, inn, int(memberID), distinctID, b.Amount)
+
+	if err != nil {
+		logger.Println("BETTING fail : BetRecordService")
 		return "", err
 	}
 
 	logger.Println("BETTING ok")
-	// done <- true
 	return i, nil
 
 }
