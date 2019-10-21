@@ -16,7 +16,8 @@ import (
 
 // Logger ...
 type Logger struct {
-	log *logrus.Logger
+	log    *logrus.Logger
+	target string
 }
 
 // Printf print format string with info level log.
@@ -37,6 +38,13 @@ func (l *Logger) Println(msg interface{}) {
 		caller := fmt.Sprintf("%s:%v %s", file, line, fnName)
 		l.log.WithField("caller", caller).Info(fmt.Sprintf("%v", msg))
 	}
+}
+
+func (l *Logger) Error(msg interface{}) {
+	// TODO
+	// l.log.SetOutput(&lumberjack.Logger{
+	// 	Filename: fmt.Sprintf("logs/%v/%v/foo.log", l.target, filename),
+	// })
 }
 
 // Create creates logrus Logger with specific target class.
@@ -72,6 +80,7 @@ func Create(t string) *Logger {
 	}
 
 	return &Logger{
-		log: logger,
+		log:    logger,
+		target: t,
 	}
 }

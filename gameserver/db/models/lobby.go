@@ -5,10 +5,11 @@ import "github.com/jinzhu/gorm"
 // Lobby ...
 type Lobby struct {
 	gorm.Model
-	GameID int8  `gorm:"type:smallint;not null" json:"game_id"`
-	Run    int64 `gorm:"type:bigint;not null" json:"run"`
-	Inn    int   `gorm:"inn;not null" json:"inn"`
-	Status int8  `gorm:"type:smallint;not null" json:"status"`
+	GameID    int8  `gorm:"type:smallint;not null" json:"game_id"`
+	Run       int64 `gorm:"type:bigint;not null" json:"run"`
+	Inn       int   `gorm:"inn;not null" json:"inn"`
+	Status    int8  `gorm:"type:smallint;not null" json:"status"`
+	Countdown int8  `gorm:"type:smallint;not null" json:"countdown"`
 }
 
 // TableName returns the custom table name.

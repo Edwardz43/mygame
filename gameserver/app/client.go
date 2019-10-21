@@ -43,8 +43,6 @@ type Data struct {
 type Client struct {
 	memberID uint
 
-	// member *models.Member
-
 	hub *Hub
 
 	// The websocket connection.
@@ -68,6 +66,7 @@ func (c *Client) readPump() {
 	c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
+		// logger.Println("IAMREADING!")
 		_, message, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
@@ -77,35 +76,11 @@ func (c *Client) readPump() {
 		}
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 
-		// if d.Event == "201" {
-		// 	result := make(chan *GameResult, 0)
-		// 	go StartGame(result)
-
-		// 	for {
-		// 		b, err := json.Marshal(<-result)
-		// 		Logger.Println(string(b))
-		// 		if err != nil {
-		// 			// send(window, "", "500")
-		// 			Logger.Panicln(err)
-		// 		}
-		// 		w.Write(b)
-
-		// 	}
-
-		// }
-		// Logger.Printf("[%v]", string(message))
 		d := new(Data)
 		err = json.Unmarshal(message, &d)
 		errHandle(err)
-		// Logger.Printf("event: [%v], messgae: [%v]", d.Event, d.Message)
+		// logger.Printf("readPump command: %v", d)
 		command <- d
-		// switch d.Event {
-		// case "201":
-
-		// 	break
-		// }
-
-		// c.hub.broadcast <- message
 	}
 }
 
