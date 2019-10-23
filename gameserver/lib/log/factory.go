@@ -24,7 +24,9 @@ type Logger struct {
 func (l *Logger) Printf(format string, args ...interface{}) {
 	if pc, f, line, ok := runtime.Caller(1); ok {
 		fnName := strings.Split(runtime.FuncForPC(pc).Name(), "gameserver")[1]
-		file := strings.Split(f, "mygame")[1]
+		// log.Printf("FILENAME : %v", fnName)
+		// log.Printf("f : %v", f)
+		file := strings.Split(f, "gameserver")[1]
 		caller := fmt.Sprintf("%s:%v %s", file, line, fnName)
 		l.log.WithField("caller", caller).Info(fmt.Sprintf(format, args...))
 	}
@@ -34,7 +36,9 @@ func (l *Logger) Printf(format string, args ...interface{}) {
 func (l *Logger) Println(msg interface{}) {
 	if pc, f, line, ok := runtime.Caller(1); ok {
 		fnName := strings.Split(runtime.FuncForPC(pc).Name(), "gameserver")[1]
-		file := strings.Split(f, "mygame")[1]
+		// log.Printf("FILENAME : %v", fnName)
+		// log.Printf("f : %v", f)
+		file := strings.Split(f, "gameserver")[1]
 		caller := fmt.Sprintf("%s:%v %s", file, line, fnName)
 		l.log.WithField("caller", caller).Info(fmt.Sprintf("%v", msg))
 	}
@@ -75,7 +79,6 @@ func Create(t string) *Logger {
 		if err != nil {
 			fmt.Println(err)
 		}
-		hook.TimeFormat = "2006-01-02 15:04:05.000"
 		logger.Hooks.Add(hook)
 	}
 
