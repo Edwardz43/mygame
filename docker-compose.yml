@@ -1,65 +1,46 @@
 version: "3"
 services:
-  # mysql:
-  #   image: mysql:5.7 
-  #   container_name: mygame-mysql
-  #   restart: always
-  #   command: mysqld --user=root
-  #   volumes:
-  #     - ./db.sql:/docker-entrypoint-initdb.d/init.sql      
-  #   ports:
-  #     - 13306:3306
-  #   environment:
-  #     - MYSQL_DATABASE=MyGame
-  #     - MYSQL_USER=user
-  #     - MYSQL_PASSWORD=password
-  #     - MYSQL_ROOT_PASSWORD=root
-  #     - TZ=UTC
   postgres:
-    container_name:
-      postgres
     image: postgres
     restart: always
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - 'POSTGRES_DB=${POSTGRES_DB}'
+      - 'POSTGRES_USER=${POSTGRES_USER}'
+      - 'POSTGRES_PASSWORD=${POSTGRES_PASSWORD}'
     ports:
-      - "15432:5432"
-    volumes: 
-      - postgres:/var/lib/postgresql/data
+      - '15432:5432'
+    volumes:
+      - '~/docker/postgres/Postgre:/var/lib/postgresql/data'
     networks:
       - mygame
-      
+
   pgadmin:
-    container_name:
-      pgadmin
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: "test@com.tw"
-      PGADMIN_DEFAULT_PASSWORD: "test"
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "8001:80"
+      - '8001:80'
     depends_on:
       - postgres
     networks:
       - mygame
 
-  # gameserver:
-  #   container_name:
-  #     app
-  #   build: 
-  #     context: .    
-  #   ports:
-  #     - "8090:8090"
-  #   depends_on:
-  #     - postgres
-  #   networks:
-  #     - mygame
-  #   command: >
-  #     bash -c 
-  #       "cd /src/gameserver && ./gameserver"    
+  gameserver:
+    container_name:
+      app
+    build: 
+      context: .    
+    ports:
+      - "8090:8090"
+    depends_on:
+      - postgres
+    networks:
+      - mygame
+    command: >
+      bash -c 
+        "cd /src/gameserver && ./gameserver"    
 
 networks: 
   mygame:
