@@ -49,6 +49,3 @@ services:
 networks: 
   mygame:
     driver: bridge
-
-volumes:
-  postgres:   
