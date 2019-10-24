@@ -14,7 +14,6 @@ type member struct {
 func login(c *gin.Context) {
 	var m *member
 	c.BindJSON(&m)
-	fmt.Printf("name[%v], pw[%v]\n", m.Name, m.Password)
 	memberID, err := memberService.Login(m.Name)
 	if err != nil {
 		fmt.Println(err)
