@@ -1,6 +1,8 @@
 version: "3"
 services:
   postgres:
+    container_name:
+      mygame-postgres
     image: postgres
     restart: always
     environment:
@@ -10,11 +12,13 @@ services:
     ports:
       - '15432:5432'
     volumes:
-      - '~/docker/postgres/Postgre:/var/lib/postgresql/data'
+      - '${POSTGRES_VOLUME}:/var/lib/postgresql/data'
     networks:
       - mygame
 
   pgadmin:
+    container_name:
+      mygame-pgadmin
     image: dpage/pgadmin4
     restart: always
     environment:
@@ -29,7 +33,7 @@ services:
 
   gameserver:
     container_name:
-      app
+      mygame-app
     build: 
       context: .    
     ports:
