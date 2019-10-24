@@ -1,7 +1,7 @@
 #container {
-    height: 980px;
-    display: block;
-    position: relative;    
+    height: 910px;
+    display: flow-root;
+    /* position: relative;     */
     background-position: center;
     background-repeat: no-repeat;
 }
@@ -35,6 +35,7 @@
 
 .bet-area{
     width: 100%;
+    display: inline-block;
 }
 
 .dice-area {
