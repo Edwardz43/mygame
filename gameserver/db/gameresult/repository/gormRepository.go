@@ -41,8 +41,14 @@ func (repo GameResultRepository) AddNewOne(gameType int8, run int64, inn int, de
 func (repo GameResultRepository) GetOne(gameType int8, run int64, inn int) (*models.GameResult, error) {
 	var gr models.GameResult
 
-	repo.db.First(&gr, "run = ?", 20190831)
-	return nil, nil
+	model := &models.GameResult{}
+
+	d := repo.db.First(&gr, "run =? AND inn=?", run, inn).Find(model)
+	if d.Error != nil {
+		return nil, d.Error
+	}
+
+	return model, nil
 }
 
 // GetByRun ...

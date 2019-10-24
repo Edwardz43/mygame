@@ -81,3 +81,23 @@ func TestAddNewOneShouldReturnError(t *testing.T) {
 
 	assert.NotEqual(t, i, -1)
 }
+
+func TestGetOneShouldReturnSuccess(t *testing.T) {
+	db, err := gorm.Open("postgres", "host=127.0.0.1 port=15432 user=admin dbname=postgres password=test sslmode=disable")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	repo := repository.GetGameResultInstance(db)
+
+	model, err := repo.GetOne(1, 20191024, 100)
+
+	if err != nil {
+		panic(err)
+	}
+
+	assert.NotNil(t, model)
+	assert.NotNil(t, model.Detail)
+	assert.NotEqual(t, "", model.Detail)
+}

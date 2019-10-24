@@ -121,9 +121,14 @@ func serveWebsocket(c *gin.Context) {
 
 	nowRun, nowInn, nowStatus, nowCountdown, _ := lobbyService.GetLatest(1)
 
+	latestResult, err := gameResultService.GetLatest(int8(gameBase.GetGameID()), run, inn-1)
+	errHandle(err)
+
+	format := "{\"Run\":%d, \"Inn\":%d, \"Status\":%d, \"Countdown\":%d, \"Result\":%s}"
+
 	d, err := json.Marshal(Data{
 		Event:   "200",
-		Message: fmt.Sprintf("{\"Run\":%d, \"Inn\":%d, \"Status\":%d, \"Countdown\":%d}", nowRun, nowInn, nowStatus, nowCountdown),
+		Message: fmt.Sprintf(format, nowRun, nowInn, nowStatus, nowCountdown, latestResult),
 	})
 
 	errHandle(err)

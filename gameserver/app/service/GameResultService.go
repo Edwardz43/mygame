@@ -35,3 +35,17 @@ func (service *GameResultService) AddNewOne(gameType int8, run int64, inn int, d
 
 	return "fail", nil
 }
+
+// GetLatest get the latest game result.
+func (service *GameResultService) GetLatest(gameType int8, run int64, inn int) (result string, err error) {
+	logger.Printf("parameters [%d][%d][%d][%s][%d]", gameType, run, inn)
+
+	model, err := service.Repo.GetOne(gameType, run, inn)
+
+	if err != nil {
+		logger.Println(err.Error())
+		return "err", err
+	}
+
+	return model.Detail, nil
+}

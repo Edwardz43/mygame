@@ -150,15 +150,21 @@ function init() {
 }
 
 function getTableStatus(data) {
-    console.log("set table status")
+    console.log("set table status") 
 
-    let d = JSON.parse(data.message)
-    console.log(d)
+    let d = JSON.parse(data.message);
+    console.log(d);
+
+    let result = d.Result;
+    console.log(result);
 
     document.querySelector("#run").innerHTML = d.Run;
     document.querySelector("#inn").innerHTML = d.Inn;
-    showStatus(StatusMap[d.Status])
-    startNewRun(d.Countdown - 1)
+    showStatus(StatusMap[d.Status]);
+    startNewRun(d.Countdown - 1);
+    document.getElementById("d1").setAttribute("src", "/static/img/game/dice/" + result.d1 + ".jpg");
+    document.getElementById("d2").setAttribute("src", "/static/img/game/dice/" + result.d2 + ".jpg");
+    document.getElementById("d3").setAttribute("src", "/static/img/game/dice/" + result.d3 + ".jpg");
 }
 
 init();
