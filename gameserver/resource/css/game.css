@@ -15,18 +15,35 @@
 }
 
 .gameResult {
-    margin: 0 0 0 0;
     width: 20%;
     background-color: floralwhite;
+    position: relative;
+    top: 3%;
+    left: 2%;
+    padding: 1%;
+    border-radius: 10px;
+}
+
+.result-img{
+    display: block;
+    position: relative;
+    left: 25%;
 }
 
 .dice {
-    width: 60px;
-    height: 60px;
+    width: 50;
+    height: 50px;
+    margin: 3% 0;
 }
 
 .title{
     width: 20%;
+    margin: 2% 0;
+}
+
+.main{
+    position: relative;
+    left:40%;    
 }
 
 .info{
