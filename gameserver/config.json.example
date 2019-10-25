@@ -1,0 +1,31 @@
+{
+    "debug": true,
+    "context":{
+      "timeout":2
+    },
+    "mysqldb": {
+        "host": "localhost",
+        "port": "3306",
+        "user": "root",
+        "pass": "root",
+        "name": "MyGame"
+    },
+    "postgresdb": {
+      "host": "postgres",
+      "port": "5432",
+      "user": "admin",
+      "pass": "test",
+      "name": "postgres",
+      "sslmode" : "disable"
+    },
+    "logstash":{
+      "host":"localhost",
+      "port":"5000"      
+    },
+    "ELK":{
+      "isEnabled":true
+    },
+    "Token":{
+      "key":"1234567890"
+    }
+  }
