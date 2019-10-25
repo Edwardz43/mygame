@@ -24,6 +24,8 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    volumes:      
+      - ${PGADMIN_VOLUME}:/pgdata
     ports:
       - '8001:80'
     depends_on:
