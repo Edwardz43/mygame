@@ -1,8 +1,9 @@
 package repository_test
 
 import (
-	"github.com/Edwardz43/mygame/gameserver/db/models"
 	"testing"
+
+	"github.com/Edwardz43/mygame/gameserver/db/models"
 
 	"github.com/Edwardz43/mygame/gameserver/db/member/repository"
 
@@ -24,7 +25,7 @@ func TestLoginWithNameShouldReturnSuccess(t *testing.T) {
 
 	repo := repository.GetMemberInstance(db)
 
-	id, err := repo.GetOne("edlo")
+	id, err := repo.GetOne("test001")
 
 	assert.Empty(t, err)
 	assert.NotEqual(t, 0, id)
@@ -40,7 +41,7 @@ func TestLoginWithEmailShouldReturnSuccess(t *testing.T) {
 
 	repo := repository.GetMemberInstance(db)
 
-	id, err := repo.GetOne("edlo@test.com")
+	id, err := repo.GetOne("test001@com.tw")
 
 	assert.Empty(t, err)
 	assert.NotEqual(t, 0, id)
@@ -71,7 +72,7 @@ func TestRegisterShouldReturnSuccess(t *testing.T) {
 
 	repo := repository.GetMemberInstance(db)
 
-	ok, err := repo.Create("test002", "test002@test.com", "8888")
+	ok, err := repo.Create("test006", "test006@test.com", "8888")
 
 	assert.Nil(t, err)
 	assert.True(t, ok)

@@ -1,4 +1,4 @@
-package betrecord
+package betRecord
 
 // Repository ...
 type Repository interface {

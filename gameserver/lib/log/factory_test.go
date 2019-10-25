@@ -1,24 +1,17 @@
 package log_test
 
-import (
-	"testing"
+// func TestLog(t *testing.T) {
+// 	l := logstash.New("192.168.1.101", 5000, 5)
 
-	"github.com/heatxsink/go-logstash"
-	"github.com/stretchr/testify/assert"
-)
+// 	_, err := l.Connect()
 
-func TestLog(t *testing.T) {
-	l := logstash.New("192.168.1.103", 5000, 5)
+// 	// log.Println(tcp.)
 
-	_, err := l.Connect()
+// 	assert.NoError(t, err)
 
-	// log.Println(tcp.)
+// 	err = l.Writeln("{ 'foo' : 'bar' }")
 
-	assert.NoError(t, err)
+// 	assert.NoError(t, err)
 
-	err = l.Writeln("{ 'foo' : 'bar' }")
-
-	assert.NoError(t, err)
-
-	// err := l.Connect()
-}
+// 	// err := l.Connect()
+// }

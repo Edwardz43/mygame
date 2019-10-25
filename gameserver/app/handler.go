@@ -61,7 +61,7 @@ var (
 	engine            *gin.Engine
 	conn              *websocket.Conn
 	hub               *Hub
-	betRecordService  *service.BetRecordService
+	bettingService    *service.BettingService
 	gameResultService *service.GameResultService
 	lobbyService      *service.LobbyService
 	memberService     *service.MemberService
@@ -84,7 +84,7 @@ func init() {
 	gameResultService = service.GetGameResultInstance()
 	lobbyService = service.GetLobbyInstance()
 	memberService = service.GetLoginInstance()
-	betRecordService = service.GetBetRecordInstance()
+	bettingService = service.GetBettingInstance()
 	hub = newHub()
 	engine = gin.Default()
 	tokenMap = make(map[string]bool)
@@ -397,10 +397,10 @@ func bet(memberID uint, msg string) (string, error) {
 		break
 	}
 
-	i, err := betRecordService.AddNewOne(int8(b.Game), run, inn, int(memberID), distinctID, b.Amount)
+	i, err := bettingService.AddNewOne(int8(b.Game), run, inn, int(memberID), distinctID, b.Amount)
 
 	if err != nil {
-		logger.Println("BETTING fail : BetRecordService")
+		logger.Println("BETTING fail : BettingService")
 		return "", err
 	}
 
