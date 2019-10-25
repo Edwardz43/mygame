@@ -20,13 +20,13 @@ func GetLoginInstance() *MemberService {
 	}
 }
 
-// Login ...
+// Login returns member id if success.
 func (service *MemberService) Login(nameOrEmail string) (uint, error) {
 	logger.Printf("parameters [%v]", nameOrEmail)
 	return service.Repo.GetOne(nameOrEmail)
 }
 
-// Register ...
+// Register add new member and return true if success.
 func (service *MemberService) Register(name, email, password string) (bool, error) {
 
 	pw, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
