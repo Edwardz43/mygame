@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/Edwardz43/mygame/gameserver/db"
 	"github.com/Edwardz43/mygame/gameserver/db/gameresult"
 	"github.com/Edwardz43/mygame/gameserver/db/gameresult/repository"
 )
@@ -15,7 +14,7 @@ type GameResultService struct {
 func GetGameResultInstance() *GameResultService {
 	return &GameResultService{
 		// Repo: repository.NewMysqlGameResultRepository(db.Connect()),
-		Repo: repository.GetGameResultInstance(db.ConnectGorm()),
+		Repo: repository.GetGameResultInstance(dbGormConn),
 	}
 }
 

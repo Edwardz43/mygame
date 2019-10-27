@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/Edwardz43/mygame/gameserver/db"
 	"github.com/Edwardz43/mygame/gameserver/db/member"
 	"github.com/Edwardz43/mygame/gameserver/db/member/repository"
 	"golang.org/x/crypto/bcrypt"
@@ -16,7 +15,7 @@ type MemberService struct {
 func GetLoginInstance() *MemberService {
 	return &MemberService{
 		// Repo: repository.NewMysqlGameResultRepository(db.Connect()),
-		Repo: repository.GetMemberInstance(db.ConnectGorm()),
+		Repo: repository.GetMemberInstance(dbGormConn),
 	}
 }
 

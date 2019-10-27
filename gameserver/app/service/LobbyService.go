@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/Edwardz43/mygame/gameserver/db"
 	"github.com/Edwardz43/mygame/gameserver/db/lobby"
 	"github.com/Edwardz43/mygame/gameserver/db/lobby/repository"
 )
@@ -15,7 +14,7 @@ type LobbyService struct {
 func GetLobbyInstance() *LobbyService {
 	return &LobbyService{
 		// Repo: repository.NewMysqlGameResultRepository(db.Connect()),
-		Repo: repository.GetLobbyInstance(db.ConnectGorm()),
+		Repo: repository.GetLobbyInstance(dbGormConn),
 	}
 }
 

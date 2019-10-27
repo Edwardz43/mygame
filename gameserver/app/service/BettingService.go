@@ -1,7 +1,6 @@
 package service
 
 import (
-	"github.com/Edwardz43/mygame/gameserver/db"
 	betRecord "github.com/Edwardz43/mygame/gameserver/db/betrecord"
 	"github.com/Edwardz43/mygame/gameserver/db/betrecord/repository"
 )
@@ -15,7 +14,7 @@ type BettingService struct {
 func GetBettingInstance() *BettingService {
 	return &BettingService{
 		// Repo: repository.NewMysqlBettingRepository(db.Connect()),
-		Repo: repository.GetBetRecordInstance(db.ConnectGorm()),
+		Repo: repository.GetBetRecordInstance(dbGormConn),
 	}
 }
 
