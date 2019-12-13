@@ -3,8 +3,8 @@ package service_test
 import (
 	"testing"
 
-	"github.com/Edwardz43/mygame/gameserver/app/gamelogic"
-	"github.com/Edwardz43/mygame/gameserver/app/service"
+	"github.com/Edwardz43/mygame/app/gamelogic"
+	"github.com/Edwardz43/mygame/app/service"
 )
 
 func TestSettlement(t *testing.T) {

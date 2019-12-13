@@ -1,10 +1,12 @@
 package repository_test
 
 import (
+	"github.com/Edwardz43/mygame/app/db/gameresult/repository"
 	"github.com/Edwardz43/mygame/app/db/models"
 	"testing"
-	"github.com/Edwardz43/myame/app/db/gameresult/repository"
+
 	// _ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/stretchr/testify/assert"
 )

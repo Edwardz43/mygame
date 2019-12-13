@@ -27,5 +27,8 @@
     },
     "Token":{
       "key":"1234567890"
+    },
+    "pprof":{
+      "enable":false
     }
   }

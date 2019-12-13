@@ -1,11 +1,9 @@
 package service
 
 import (
-	"github.com/Edwardz43/mygame/app/db/gameresult/repository"
 	"github.com/Edwardz43/mygame/app/db/gameresult"
+	"github.com/Edwardz43/mygame/app/db/gameresult/repository"
 )
-
-
 
 // GameResultService ...
 type GameResultService struct {

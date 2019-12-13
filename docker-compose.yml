@@ -33,20 +33,20 @@ services:
     networks:
       - mygame
 
-  gameserver:
-    container_name:
-      mygame-app
-    build: 
-      context: .    
-    ports:
-      - "8090:8090"
-    depends_on:
-      - postgres
-    networks:
-      - mygame
-    command: >
-      bash -c 
-        "cd /src/gameserver && ./gameserver"    
+  # gameserver:
+  #   container_name:
+  #     mygame-app
+  #   build: 
+  #     context: .    
+  #   ports:
+  #     - "8090:8090"
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - mygame
+  #   command: >
+  #     bash -c 
+  #       "cd /src/gameserver && ./gameserver"    
 
 networks: 
   mygame:

@@ -1,15 +1,14 @@
 package db
 
 import (
+	"github.com/Edwardz43/mygame/app/db/models"
+	"github.com/Edwardz43/mygame/app/config"
 	"database/sql"
 	"fmt"
 	"log"
 	"net/url"
 	"os"
-
-	"github.com/Edwardz43/mygame/gameserver/config"
-	"github.com/Edwardz43/mygame/gameserver/db/models"
-
+	
 	// _ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"

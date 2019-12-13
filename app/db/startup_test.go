@@ -3,7 +3,7 @@ package db_test
 import (
 	"testing"
 
-	"github.com/Edwardz43/mygame/gameserver/db"
+	"github.com/Edwardz43/mygame/app/db"
 )
 
 // func TestConnect(t *testing.T) {

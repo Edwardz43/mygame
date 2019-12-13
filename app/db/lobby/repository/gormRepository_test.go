@@ -2,7 +2,7 @@ package repository_test
 
 import (
 	"github.com/Edwardz43/mygame/app/db/lobby/repository"
-	"github.com/Edwardz43/mygame/gameserver/db/models"
+	"github.com/Edwardz43/mygame/app/db/models"
 	"github.com/jinzhu/gorm"
 	"testing"
 	// _ "github.com/jinzhu/gorm/dialects/mysql"

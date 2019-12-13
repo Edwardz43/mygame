@@ -62,3 +62,9 @@ func GetTokenKey() string {
 	key := viper.GetString(`Token.key`)
 	return key
 }
+
+// GetPprofEnable ...
+func GetPprofEnable() bool {
+	isEnabled := viper.GetBool(`pprof.enable`)
+	return isEnabled
+}
