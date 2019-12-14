@@ -205,7 +205,7 @@ func serve() {
 	engine.Run(":8090")
 }
 
-func start(hub *socket.Hub, gb gamelogic.GameBase) {
+func start(gb gamelogic.GameBase) {
 
 	gameResult = new(gamelogic.GameResult)
 
@@ -407,6 +407,6 @@ func bet(memberID uint, msg string) (string, error) {
 func Startup() {
 	// isGaming = false
 	go hub.Run()
-	go start(hub, &gamelogic.DiceGame{})
+	go start(&gamelogic.DiceGame{})
 	serve()
 }
