@@ -1,9 +1,8 @@
 package service
 
 import (
-	"github.com/Edwardz43/mygame/app/db/lobby/repository"
 	"github.com/Edwardz43/mygame/app/db/lobby"
-	
+	"github.com/Edwardz43/mygame/app/db/lobby/repository"
 )
 
 // LobbyService ...
@@ -36,6 +35,6 @@ func (service *LobbyService) Update(gameID int, run int64, inn int, status int) 
 
 // Countdown updates the countdown.
 func (service *LobbyService) Countdown(gameID int, countdown int8) error {
-	logger.Printf("parameters [%d][%d]", gameID, countdown)
+	// logger.Printf("parameters [%d][%d]", gameID, countdown)
 	return service.Repo.Countdown(gameID, countdown)
 }
