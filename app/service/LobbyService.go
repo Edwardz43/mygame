@@ -20,16 +20,16 @@ func GetLobbyInstance() *LobbyService {
 
 // GetLatest returns the latest game info with specific game ID.
 func (service *LobbyService) GetLatest(gameID int) (int64, int, int8, int8, error) {
-	logger.Printf("parameters [%d]", gameID)
+	// logger.Printf("parameters [%d]", gameID)
 	return service.Repo.GetLatest(gameID)
 }
 
 // Update updates the info.
 func (service *LobbyService) Update(gameID int, run int64, inn int, status int) error {
-	logger.Printf("parameters [%d][%d][%d][%d]", gameID, run, inn, status)
-	if status == 2 {
+	// logger.Printf("parameters [%d][%d][%d][%d]", gameID, run, inn, status)
+	// if status == 2 {
 
-	}
+	// }
 	return service.Repo.Update(gameID, run, inn, status)
 }
 

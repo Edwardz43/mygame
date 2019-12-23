@@ -1,9 +1,9 @@
 package service
 
 import (
-	"github.com/Edwardz43/mygame/app/db/member/repository"
 	"github.com/Edwardz43/mygame/app/db/member"
-	
+	"github.com/Edwardz43/mygame/app/db/member/repository"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -22,7 +22,7 @@ func GetLoginInstance() *MemberService {
 
 // Login returns member id if success.
 func (service *MemberService) Login(nameOrEmail string) (uint, error) {
-	logger.Printf("parameters [%v]", nameOrEmail)
+	// logger.Printf("parameters [%v]", nameOrEmail)
 	return service.Repo.GetOne(nameOrEmail)
 }
 
@@ -35,7 +35,7 @@ func (service *MemberService) Register(name, email, password string) (bool, erro
 		return false, err
 	}
 
-	logger.Printf("parameters [%v;%v;%v]", name, email, pw)
+	// logger.Printf("parameters [%v;%v;%v]", name, email, pw)
 	ok, err := service.Repo.Create(name, email, string(pw))
 
 	if !ok && err != nil {
