@@ -2,11 +2,11 @@
 FROM golang:alpine AS build-env
 ADD . /src
 RUN cd /src && ls -l
-RUN cd /src/gameserver && go build -o gameserver
+RUN cd /src/app && go build -o app
 
 # final stage
 FROM alpine
-WORKDIR /gameserver
-COPY --from=build-env /src/gameserver /gameserver/
-RUN touch ./gameserver
-ENTRYPOINT ./gameserver
+WORKDIR /app
+COPY --from=build-env /src/app /app/
+RUN touch ./app
+ENTRYPOINT ./app

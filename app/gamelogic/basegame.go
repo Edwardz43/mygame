@@ -18,6 +18,7 @@ var (
 const (
 	Dice GameType = iota + 1
 	Roulette
+	DragonTiger
 )
 
 const (
