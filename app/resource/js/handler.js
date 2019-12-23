@@ -55,35 +55,11 @@ function connect() {
     //console.log("memberID=" + memberID)
     ws = new WebSocket("ws://localhost:8090/ws?memberID=" + memberID);
 
-    ws.onmessage = (message) => {
-        console.table(message.data)
-        let obj = JSON.parse(message.data);        
-        console.table(obj)
-        switch (obj.event) {
-            case COMMAND_CONNECTED:
-                console.log(obj)
-                register();
-                setTableStatus(obj);
-                break;
-            case COMMAND_NEW_RUN:
-                showStatus("New Run");
-                countdown(obj);
-                // console.log(new Date().toLocaleString() + " New Run")
-                break;
-            case COMMAND_SHOWDOWN:
-                showStatus("Show Down");
-                // console.log(new Date().toLocaleString() + " Show Down")
-                showGameResult(JSON.parse(obj.message));
-                break;
-            case COMMAND_RESULT:
-                showStatus("Settlement");
-                // console.log(new Date().toLocaleString() + " Settlement")
-                break;
-            case COMMAND_COUNTDOWN:
-                countdown(obj)
-            default:
-                break;
-        }
+    ws.onmessage = (message) => {        
+        // handle sticky packets
+        message.data.split('\n').forEach(element => {
+            operation(JSON.parse(element))    
+        })        
     }
 
     ws.onclose = function (evt) {        
@@ -96,6 +72,34 @@ function connect() {
         }
 
     };
+}
+
+function operation(cmd) {
+    switch (cmd.event) {
+        case COMMAND_CONNECTED:
+            console.log(cmd)
+            register();
+            setTableStatus(cmd);
+            break;
+        case COMMAND_NEW_RUN:
+            showStatus("New Run");
+            countdown(cmd);
+            // console.log(new Date().toLocaleString() + " New Run")
+            break;
+        case COMMAND_SHOWDOWN:
+            showStatus("Show Down");
+            // console.log(new Date().toLocaleString() + " Show Down")
+            showGameResult(JSON.parse(cmd.message));
+            break;
+        case COMMAND_RESULT:
+            showStatus("Settlement");
+            // console.log(new Date().toLocaleString() + " Settlement")
+            break;
+        case COMMAND_COUNTDOWN:
+            countdown(cmd)
+        default:
+            break;
+    }
 }
 
 function register() {
