@@ -4,6 +4,7 @@ let isGaming = false;
 let timmer;
 let ws;
 let betBtnList = [];
+let counter = 5;
 
 const StatusMap = {
     1: "New Run",
@@ -49,7 +50,7 @@ function showGameResult(obj) {
     })
 }
 
-function startNewRun(cd) {
+function countdown(cd) {
     // let cd = 10;
     //console.log(cd);
     timmer = function () {
@@ -62,7 +63,7 @@ function startNewRun(cd) {
 }
 
 function connect() {
-    let counter = 5;
+    
     //console.log("memberID=" + memberID)
     ws = new WebSocket("ws://localhost:8090/ws?memberID=" + memberID);
 
@@ -78,7 +79,7 @@ function connect() {
                 break;
             case COMMAND_NEW_RUN:
                 showStatus("New Run");
-                startNewRun(obj.message);
+                showNewRun(obj);
                 // console.log(new Date().toLocaleString() + " New Run")
                 break;
             case COMMAND_SHOWDOWN:
@@ -96,6 +97,7 @@ function connect() {
     }
 
     ws.onclose = function (evt) {
+        timmer = null;
         if (counter >= 0) {
             console.log("Connection close")
             setTimeout(function () {
@@ -161,10 +163,23 @@ function getTableStatus(data) {
     document.querySelector("#run").innerHTML = d.Run;
     document.querySelector("#inn").innerHTML = d.Inn;
     showStatus(StatusMap[d.Status]);
-    startNewRun(d.Countdown - 1);
+    countdown(d.Countdown - 1);
     document.getElementById("d1").setAttribute("src", "/static/img/game/dice/" + result.d1 + ".jpg");
     document.getElementById("d2").setAttribute("src", "/static/img/game/dice/" + result.d2 + ".jpg");
     document.getElementById("d3").setAttribute("src", "/static/img/game/dice/" + result.d3 + ".jpg");
+}
+
+function showNewRun(data) {
+    console.log(data);    
+    let d = JSON.parse(data.message);  
+    console.log(d);      
+    document.querySelector("#run").innerHTML = d.run;
+    document.querySelector("#inn").innerHTML = d.inn;
+    showStatus(StatusMap[1]);
+    countdown(d.countdown);
+    // document.getElementById("d1").setAttribute("src", "/static/img/game/dice/" + result.d1 + ".jpg");
+    // document.getElementById("d2").setAttribute("src", "/static/img/game/dice/" + result.d2 + ".jpg");
+    // document.getElementById("d3").setAttribute("src", "/static/img/game/dice/" + result.d3 + ".jpg");
 }
 
 init();
