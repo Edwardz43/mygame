@@ -1,10 +1,9 @@
 
 // const connectBtn = document.querySelector("#connect");
 let isGaming = false;
-let timmer;
 let ws;
 let betBtnList = [];
-let counter = 5;
+let counter = 10;
 
 const StatusMap = {
     1: "New Run",
@@ -18,6 +17,7 @@ const COMMAND_CONNECTED = "200",
     COMMAND_SHOWDOWN = "202",
     COMMAND_RESULT = "203",
     COMMAND_BET = "204";
+    COMMAND_COUNTDOWN = "205";
 
 const btn_dice_big = document.getElementById("dice-big"),
     btn_dice_small = document.getElementById("dice-small"),
@@ -50,36 +50,24 @@ function showGameResult(obj) {
     })
 }
 
-function countdown(cd) {
-    // let cd = 10;
-    //console.log(cd);
-    timmer = function () {
-        if (cd >= 0) {
-            document.querySelector("#countdown").innerHTML = cd--;
-            setTimeout(timmer, 1000);
-        }
-    }
-    timmer();
-}
-
 function connect() {
     
     //console.log("memberID=" + memberID)
     ws = new WebSocket("ws://localhost:8090/ws?memberID=" + memberID);
 
     ws.onmessage = (message) => {
-        //console.table(message.data)
-        let obj = JSON.parse(message.data);
-        //console.log(new Date().toLocaleString() + " " + obj.event)
+        console.table(message.data)
+        let obj = JSON.parse(message.data);        
+        console.table(obj)
         switch (obj.event) {
             case COMMAND_CONNECTED:
                 console.log(obj)
                 register();
-                getTableStatus(obj);
+                setTableStatus(obj);
                 break;
             case COMMAND_NEW_RUN:
                 showStatus("New Run");
-                showNewRun(obj);
+                countdown(obj);
                 // console.log(new Date().toLocaleString() + " New Run")
                 break;
             case COMMAND_SHOWDOWN:
@@ -91,13 +79,14 @@ function connect() {
                 showStatus("Settlement");
                 // console.log(new Date().toLocaleString() + " Settlement")
                 break;
+            case COMMAND_COUNTDOWN:
+                countdown(obj)
             default:
                 break;
         }
     }
 
-    ws.onclose = function (evt) {
-        timmer = null;
+    ws.onclose = function (evt) {        
         if (counter >= 0) {
             console.log("Connection close")
             setTimeout(function () {
@@ -142,44 +131,28 @@ function init() {
             bet(data.game, data.area);
         }
     })
-
-    // Betting
-    // let betBtn = {};
-
-    // betBtn.child = document.getElementById("dice-big");
-
-    // window.b = betBtn;
 }
 
-function getTableStatus(data) {
-    console.log("set table status") 
-
+function setTableStatus(data) {
     let d = JSON.parse(data.message);
-    console.log(d);
+    setGameInfo(d.run, d.inn, d.status, d.countdown)
 
-    let result = d.Result;
-    console.log(result);
-
-    document.querySelector("#run").innerHTML = d.Run;
-    document.querySelector("#inn").innerHTML = d.Inn;
-    showStatus(StatusMap[d.Status]);
-    countdown(d.Countdown - 1);
+    let result = d.result;    
     document.getElementById("d1").setAttribute("src", "/static/img/game/dice/" + result.d1 + ".jpg");
     document.getElementById("d2").setAttribute("src", "/static/img/game/dice/" + result.d2 + ".jpg");
     document.getElementById("d3").setAttribute("src", "/static/img/game/dice/" + result.d3 + ".jpg");
 }
 
-function showNewRun(data) {
-    console.log(data);    
-    let d = JSON.parse(data.message);  
-    console.log(d);      
-    document.querySelector("#run").innerHTML = d.run;
-    document.querySelector("#inn").innerHTML = d.inn;
-    showStatus(StatusMap[1]);
-    countdown(d.countdown);
-    // document.getElementById("d1").setAttribute("src", "/static/img/game/dice/" + result.d1 + ".jpg");
-    // document.getElementById("d2").setAttribute("src", "/static/img/game/dice/" + result.d2 + ".jpg");
-    // document.getElementById("d3").setAttribute("src", "/static/img/game/dice/" + result.d3 + ".jpg");
+function countdown(data) {
+    let d = JSON.parse(data.message);      
+    setGameInfo(d.run, d.inn, 1, d.countdown)
+}
+
+function setGameInfo(run, inn, status, cd) {
+    document.querySelector("#run").innerHTML = run;
+    document.querySelector("#inn").innerHTML = inn;
+    document.querySelector("#countdown").innerHTML = cd;
+    showStatus(StatusMap[status]);   
 }
 
 init();

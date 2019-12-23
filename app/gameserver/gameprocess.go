@@ -112,7 +112,20 @@ func newInn() {
 	for count > -1 {
 		select {
 		case <-ticker.C:
-			err := lobbyService.Countdown(int(gameBase.GetGameID()), int8(count))
+			logger.Printf("countdown : %d", count)
+
+			newRun := socket.Data{
+				Event:   "205",
+				Message: fmt.Sprintf("{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%d}", gameBase.GetGameID(), run, inn, count),
+			}
+
+			d, err := json.Marshal(newRun)
+
+			errHandle(err)
+
+			hub.Broadcast <- d
+
+			err = lobbyService.Countdown(int(gameBase.GetGameID()), int8(count))
 			errHandle(err)
 			count--
 		}

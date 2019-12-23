@@ -114,7 +114,7 @@ func serveWebsocket(c *gin.Context) {
 	latestResult, err := gameResultService.GetLatest(int8(gameBase.GetGameID()), run, inn-1)
 	errHandle(err)
 
-	format := "{\"GameID\":%d,\"Run\":%d, \"Inn\":%d, \"Status\":%d, \"Countdown\":%d, \"Result\":%v}"
+	format := "{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"status\":%d, \"countdown\":%d, \"result\":%v}"
 
 	d, err := json.Marshal(socket.Data{
 		Event:   "200",
