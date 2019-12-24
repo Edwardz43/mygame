@@ -22,9 +22,5 @@ func main() {
 		net.Startup()
 	}()
 
-	// go func() {
-	// 	gameserver.Startup(&gamelogic.DragonTigerGame{})
-	// }()
-
 	select {}
 }

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/Edwardz43/mygame/app/lib/log"
-	"github.com/Edwardz43/mygame/app/websocket"
+	"github.com/Edwardz43/mygame/app/lib/nettool"
 
 	"github.com/Edwardz43/mygame/app/gamelogic"
 
@@ -16,8 +16,13 @@ import (
 
 // GameProcess creates a game process instance
 type GameProcess struct {
-	Hub      net.Hub
-	GameBase gamelogic.GameBase
+	Hub          nettool.Hub
+	GameBase     gamelogic.GameBase
+	gameResult   *gamelogic.GameResult
+	run          int64
+	inn          int
+	status       int8
+	oldCountdown int8
 }
 
 // GameStatus ...
@@ -33,16 +38,10 @@ const (
 
 var (
 	gameResultService *service.GameResultService
-	gameResult        *gamelogic.GameResult
-	run               int64
-	inn               int
-	status            int8
-	oldCountdown      int8
-	command           chan *websocket.Data
+	command           chan *nettool.Data
 	logger            *log.Logger
 	lobbyService      *service.LobbyService
 	gameBase          gamelogic.GameBase
-	hub               *websocket.Hub
 	duration          = time.Second * 20
 	showDownTime      = time.Second * 3
 	settlementTime    = time.Second * 5
@@ -59,42 +58,50 @@ func init() {
 	logger = log.Create("gameserver")
 	gameResultService = service.GetGameResultInstance()
 	lobbyService = service.GetLobbyInstance()
-	gameResult = new(gamelogic.GameResult)
+
 }
 
 // Start starts game process
 func (p *GameProcess) Start() {
 	gameBase = p.GameBase
-	go gameBase.StartGame()
+	// logger.Printf("GameBase[%v]", gameBase.GetGameID())
 
-	run, inn, status, oldCountdown, _ = lobbyService.GetLatest(int(gamelogic.Dice))
-	logger.Printf(fmt.Sprintf("INN : %d", inn))
+	go gameBase.StartGame()
+	p.gameResult = new(gamelogic.GameResult)
+
+	gameID := p.GameBase.GetGameID()
+	// logger.Printf("GameID[%d] start", gameID)
+
+	p.run, p.inn, p.status, p.oldCountdown, _ = lobbyService.GetLatest(int(gameID))
+	logger.Printf(fmt.Sprintf("gameID[%d], run[%d], inn[%d], status[%d], cd[%d]", gameID, p.run, p.inn, p.status, p.oldCountdown))
 
 	// if err != nil {
 	// 	panic(err)
 	// }
 
-	if run == 0 {
+	if p.run == 0 {
 		i, _ := strconv.Atoi(time.Now().Format("20060102"))
-		run = int64(i)
+		p.run = int64(i)
 	}
 
-	if inn == 0 {
-		inn = 1
+	if p.inn == 0 {
+		p.inn = 1
 	}
 
-	switch GameStatus(status) {
+	// logger.Printf("[%s] : [%s]", "Start", status)
+
+	switch GameStatus(p.status) {
 	case NewInn:
 		//TODO
-		newInn()
+		p.newInn()
 		break
 	case Showdown:
 		//TODO
-		showDown()
+		p.showDown()
 		break
 	case Settlement:
 		//TODO
-		settlement()
+		p.settlement()
 		break
 	case Intermission:
 		//TODO
@@ -108,125 +115,125 @@ func (p *GameProcess) Start() {
 }
 
 // newRun 新輪
-func newRun() {
-	// Logger.Printf("[%s] : [%s]", "hanlder", "newRun")
+func (p *GameProcess) newRun() {
+	logger.Printf("[%s] : [%s]", "hanlder", "newRun")
 	runOld, _, _, _, err := lobbyService.GetLatest(int(gameBase.GetGameID()))
 	errHandle(err)
 	runNow, _ := strconv.Atoi(time.Now().Format("20060102"))
 	if runOld != int64(runNow) {
-		run = int64(runNow)
-		inn = 1
-		lobbyService.Update(int(gameBase.GetGameID()), run, 1, int(NewInn))
+		p.run = int64(runNow)
+		p.inn = 1
+		lobbyService.Update(int(gameBase.GetGameID()), p.run, 1, int(NewInn))
 	}
-	newInn()
+	p.newInn()
 }
 
 // newInn 新局
-func newInn() {
+func (p *GameProcess) newInn() {
 
 	detail := gameBase.NewGame()
 
-	lobbyService.Update(int(gameBase.GetGameID()), run, inn, int(NewInn))
-	logger.Printf(fmt.Sprintf("newInn INN : %d", inn))
-	gameResult.Run = run
-	gameResult.Inn = inn
+	lobbyService.Update(int(p.GameBase.GetGameID()), p.run, p.inn, int(NewInn))
+	logger.Printf(fmt.Sprintf("GameID[%d] NewInn: %d", int(gameBase.GetGameID()), p.inn))
+	p.gameResult.Run = p.run
+	p.gameResult.Inn = p.inn
 
-	gameResult.GameType = gameBase.GetGameID()
-	gameResult.GameDetail = detail
+	p.gameResult.GameType = p.GameBase.GetGameID()
+	p.gameResult.GameDetail = detail
 
-	newRun := websocket.Data{
+	newRun := nettool.Data{
 		Event:   "201",
-		Message: fmt.Sprintf("{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%s}", gameBase.GetGameID(), run, inn, duration.String()[0:2]),
+		Message: fmt.Sprintf("{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%s}", p.GameBase.GetGameID(), p.run, p.inn, duration.String()[0:2]),
 	}
 
 	d, err := json.Marshal(newRun)
 
 	errHandle(err)
 
-	hub.Broadcast <- d
+	p.Hub.Broadcast <- d
 
 	ticker := time.NewTicker(time.Second)
 
 	var count int8
 
-	if oldCountdown == 0 {
+	if p.oldCountdown == 0 {
 		count = 20
 	} else {
-		count = oldCountdown
-		oldCountdown = 0
+		count = p.oldCountdown
+		p.oldCountdown = 0
 	}
 
 	for count > -1 {
 		select {
 		case <-ticker.C:
-			logger.Printf("countdown : %d", count)
+			logger.Printf("GameID[%d] countdown : %d", int(p.GameBase.GetGameID()), count)
 
-			newRun := websocket.Data{
+			newRun := nettool.Data{
 				Event:   "205",
-				Message: fmt.Sprintf("{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%d}", gameBase.GetGameID(), run, inn, count),
+				Message: fmt.Sprintf("{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%d}", p.GameBase.GetGameID(), p.run, p.inn, count),
 			}
 
 			d, err := json.Marshal(newRun)
 
 			errHandle(err)
 
-			hub.Broadcast <- d
+			p.Hub.Broadcast <- d
 
-			err = lobbyService.Countdown(int(gameBase.GetGameID()), int8(count))
+			err = lobbyService.Countdown(int(p.GameBase.GetGameID()), int8(count))
 			errHandle(err)
 			count--
 		}
 	}
-	showDown()
+	p.showDown()
 }
 
 // showDown 開牌
-func showDown() {
+func (p *GameProcess) showDown() {
 
-	lobbyService.Update(int(gameBase.GetGameID()), run, inn, int(Showdown))
+	lobbyService.Update(int(p.GameBase.GetGameID()), p.run, p.inn, int(Showdown))
 
-	detail, _ := json.Marshal(gameResult.GameDetail)
+	detail, _ := json.Marshal(p.gameResult.GameDetail)
 
 	go func() {
 		m, err := gameResultService.
-			AddNewOne(int8(gameResult.GameType), gameResult.Run, gameResult.Inn, string(detail), 0)
+			AddNewOne(int8(p.gameResult.GameType), p.gameResult.Run, p.gameResult.Inn, string(detail), 0)
 		errHandle(err)
 		logger.Printf("[%s] : [%s] message [%s]", "GameResultService", "AddNewOne", m)
 	}()
-	logger.Printf(fmt.Sprintf("INN : %d", inn))
+	logger.Printf(fmt.Sprintf("INN : %d", p.inn))
 
-	r, err := json.Marshal(gameResult)
+	r, err := json.Marshal(p.gameResult)
 	errHandle(err)
-	data := websocket.Data{
+	data := nettool.Data{
 		Event:   "202",
 		Message: string(r),
 	}
 	d, err := json.Marshal(data)
 	errHandle(err)
-	hub.Broadcast <- d
+	p.Hub.Broadcast <- d
 
-	time.AfterFunc(showDownTime, settlement)
+	time.AfterFunc(showDownTime, p.settlement)
 }
 
 // settlement 結算
-func settlement() {
+func (p *GameProcess) settlement() {
 
-	lobbyService.Update(int(gameBase.GetGameID()), run, inn, int(Settlement))
+	lobbyService.Update(int(p.GameBase.GetGameID()), p.run, p.inn, int(Settlement))
 
-	data := websocket.Data{
+	data := nettool.Data{
 		Event:   "203",
 		Message: "Settling",
 	}
 	d, err := json.Marshal(data)
 	errHandle(err)
-	hub.Broadcast <- d
-	logger.Printf(fmt.Sprintf("INN : %d", inn))
+	p.Hub.Broadcast <- d
+	logger.Printf(fmt.Sprintf("INN : %d", p.inn))
 
-	time.AfterFunc(showDownTime, newRun)
+	time.AfterFunc(showDownTime, p.newRun)
 
-	inn++
+	p.inn++
 }
 
-func intermission() {}
+func (p *GameProcess) intermission() {}
 
-func maintain() {}
+func (p *GameProcess) maintain() {}

@@ -17,7 +17,7 @@ type DiceGame struct{}
 
 // StartGame ...
 func (d *DiceGame) StartGame() {
-	logger.Println("Start Game")
+	logger.Println("Start Game Dice")
 }
 
 // NewGame ...

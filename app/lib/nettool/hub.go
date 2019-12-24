@@ -1,4 +1,4 @@
-package websocket
+package nettool
 
 // PersonalMessage ...
 type PersonalMessage struct {

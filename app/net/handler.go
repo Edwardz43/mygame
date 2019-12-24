@@ -2,13 +2,13 @@ package net
 
 import (
 	"encoding/json"
-	socket "github.com/Edwardz43/mygame/app/lib/websocket"
+	"github.com/Edwardz43/mygame/app/gamelogic"
+	"github.com/Edwardz43/mygame/app/gameserver"
 	"net/http"
 	"strconv"
 
-	"github.com/Edwardz43/mygame/app/gameserver"
+	"github.com/Edwardz43/mygame/app/lib/nettool"
 
-	"github.com/Edwardz43/mygame/app/gamelogic"
 	"github.com/Edwardz43/mygame/app/lib/log"
 	"github.com/Edwardz43/mygame/app/service"
 	"github.com/gin-gonic/gin"
@@ -49,8 +49,8 @@ var (
 	bettingService    *service.BettingService
 	logger            *log.Logger
 	tokenMap          map[string]bool
-	hub               *socket.Hub
-	command           chan *socket.Data
+	hub               *nettool.Hub
+	command           chan *nettool.Data
 )
 
 func init() {
@@ -58,7 +58,7 @@ func init() {
 	bettingService = service.GetBettingInstance()
 	lobbyService = service.GetLobbyInstance()
 	memberService = service.GetLoginInstance()
-	hub = socket.NewHub()
+	hub = nettool.NewHub()
 	engine = gin.Default()
 	tokenMap = make(map[string]bool)
 }
@@ -125,7 +125,7 @@ func serveWebsocket(c *gin.Context) {
 
 	errHandle(err)
 
-	client := &socket.Client{}
+	client := &nettool.Client{}
 	client.Set(uint(id), hub, conn, make(chan []byte, 256))
 
 	hub.Register <- client
@@ -149,7 +149,7 @@ func serveWebsocket(c *gin.Context) {
 	// 	Message: d,
 	// }
 
-	command = make(chan *socket.Data)
+	command = make(chan *nettool.Data)
 
 	client.Listen(command)
 
@@ -224,14 +224,17 @@ func Startup() {
 	// isGaming = false
 	go hub.Run()
 
-	dice := &gameserver.GameProcess{Hub: hub, GameBase: &gamelogic.DiceGame{}}
+	go func() {
+		dice := &gameserver.GameProcess{Hub: *hub, GameBase: &gamelogic.DiceGame{}}
+		// logger.Printf("GameType[%d]", dice.GameBase.GetGameID())
+		dice.Start()
+	}()
 
-	go dice.GameBase.StartGame()
+	go func() {
+		dt := &gameserver.GameProcess{Hub: *hub, GameBase: &gamelogic.DragonTigerGame{}}
+		// logger.Printf("GameType[%d]", dragontiger.GameBase.GetGameID())
+		dt.Start()
+	}()
 
-	// dt := &gameserver.GameProcess{Hub: hub, GameBase: &gamelogic.DragonTigerGame{}}
-
-	// go dt.GameBase.StartGame()
-
-	// go start(gb)
-	serve()
+	go serve()
 }

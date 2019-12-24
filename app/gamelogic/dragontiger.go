@@ -16,7 +16,7 @@ type DragonTigerGame struct{}
 
 // StartGame ...
 func (d *DragonTigerGame) StartGame() {
-	logger.Println("Start Game")
+	logger.Println("Start Game DT")
 }
 
 // NewGame ...
