@@ -1,22 +1,19 @@
-package gameserver
+package net
 
 import (
 	"encoding/json"
-	"fmt"
+	socket "github.com/Edwardz43/mygame/app/lib/websocket"
 	"net/http"
 	"strconv"
-	"time"
+
+	"github.com/Edwardz43/mygame/app/gameserver"
 
 	"github.com/Edwardz43/mygame/app/gamelogic"
 	"github.com/Edwardz43/mygame/app/lib/log"
 	"github.com/Edwardz43/mygame/app/service"
-	socket "github.com/Edwardz43/mygame/app/websocket"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
-
-// GameStatus ...
-type GameStatus int8
 
 // COMMAND ...
 type COMMAND int
@@ -28,14 +25,6 @@ type betOrder struct {
 	BetArea string `json:"bet-area"`
 	Amount  int    `json:"amount"`
 }
-
-const (
-	NewInn GameStatus = iota + 1
-	Showdown
-	Settlement
-	Intermission
-	Maintain
-)
 
 const (
 	Register COMMAND = iota + 200
@@ -54,31 +43,21 @@ var (
 	isGaming          bool
 	engine            *gin.Engine
 	conn              *websocket.Conn
-	hub               *socket.Hub
-	bettingService    *service.BettingService
-	gameResultService *service.GameResultService
 	lobbyService      *service.LobbyService
 	memberService     *service.MemberService
-	gameResult        *gamelogic.GameResult
-	gameBase          gamelogic.GameBase
-	run               int64
-	inn               int
-	status            int8
-	oldCountdown      int8
-	command           chan *socket.Data
+	gameResultService *service.GameResultService
+	bettingService    *service.BettingService
 	logger            *log.Logger
 	tokenMap          map[string]bool
-	duration          = time.Second * 20
-	showDownTime      = time.Second * 3
-	settlementTime    = time.Second * 5
+	hub               *socket.Hub
+	command           chan *socket.Data
 )
 
 func init() {
-	logger = log.Create("gameserver")
-	gameResultService = service.GetGameResultInstance()
+	logger = log.Create("net")
+	bettingService = service.GetBettingInstance()
 	lobbyService = service.GetLobbyInstance()
 	memberService = service.GetLoginInstance()
-	bettingService = service.GetBettingInstance()
 	hub = socket.NewHub()
 	engine = gin.Default()
 	tokenMap = make(map[string]bool)
@@ -92,6 +71,48 @@ func errHandle(err error) {
 }
 
 // var addr = flag.String("addr", ":8090", "http service address")
+
+func bet(memberID uint, run int64, inn int, msg string) (string, error) {
+
+	logger.Printf("BETTING ID : [%v], data : [%v]", memberID, msg)
+	// TODO
+
+	var b betOrder
+
+	err := json.Unmarshal([]byte(msg), &b)
+	if err != nil {
+		logger.Println("BETTING fail : json unmarshal")
+		return "", err
+	}
+
+	var distinctID int
+
+	switch b.BetArea {
+	case "big":
+		distinctID = 1
+		break
+	case "small":
+		distinctID = 2
+		break
+	case "odd":
+		distinctID = 3
+		break
+	case "even":
+		distinctID = 4
+		break
+	}
+
+	i, err := bettingService.AddNewOne(int8(b.Game), run, inn, int(memberID), distinctID, b.Amount)
+
+	if err != nil {
+		logger.Println("BETTING fail : BettingService")
+		return "", err
+	}
+
+	logger.Println("BETTING ok")
+	return i, nil
+
+}
 
 func serveWebsocket(c *gin.Context) {
 	// flag.Parse()
@@ -109,24 +130,24 @@ func serveWebsocket(c *gin.Context) {
 
 	hub.Register <- client
 
-	nowRun, nowInn, nowStatus, nowCountdown, _ := lobbyService.GetLatest(1)
+	// nowRun, nowInn, nowStatus, nowCountdown, _ := lobbyService.GetLatest(1)
 
-	latestResult, err := gameResultService.GetLatest(int8(gameBase.GetGameID()), run, inn-1)
-	errHandle(err)
+	// latestResult, err := gameResultService.GetLatest(int8(gameBase.GetGameID()), run, inn-1)
+	// errHandle(err)
 
-	format := "{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"status\":%d, \"countdown\":%d, \"result\":%v}"
+	// format := "{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"status\":%d, \"countdown\":%d, \"result\":%v}"
 
-	d, err := json.Marshal(socket.Data{
-		Event:   "200",
-		Message: fmt.Sprintf(format, int8(gameBase.GetGameID()), nowRun, nowInn, nowStatus, nowCountdown, latestResult),
-	})
+	// d, err := json.Marshal(Data{
+	// 	Event:   "200",
+	// 	Message: fmt.Sprintf(format, int8(gameBase.GetGameID()), nowRun, nowInn, nowStatus, nowCountdown, latestResult),
+	// })
 
-	errHandle(err)
+	// errHandle(err)
 
-	hub.Send <- &socket.PersonalMessage{
-		Client:  client,
-		Message: d,
-	}
+	// hub.Send <- &PersonalMessage{
+	// 	Client:  client,
+	// 	Message: d,
+	// }
 
 	command = make(chan *socket.Data)
 
@@ -137,33 +158,34 @@ func serveWebsocket(c *gin.Context) {
 		case c := <-command:
 			logger.Printf("COMMAND : [%v], DATA: [%v]", c.Event, c.Message)
 
+			// var d []byte
 			switch c.Event {
 			case "300": // get table status
 				//TODO
 				break
-			case "301": // bet
+				// case "301": // bet
 
-				msg, err := bet(client.MemberID, c.Message)
+				// 	msg, err := bet(client.MemberID, c.Message)
 
-				if err != nil {
-					//TODO
-					d, err = json.Marshal(socket.Data{
-						Event:   "301",
-						Message: err.Error(),
-					})
-				} else {
-					d, err = json.Marshal(socket.Data{
-						Event:   "301",
-						Message: msg,
-					})
-				}
+				// 	if err != nil {
+				// 		//TODO
+				// 		d, _ = json.Marshal(Data{
+				// 			Event:   "301",
+				// 			Message: err.Error(),
+				// 		})
+				// 	} else {
+				// 		d, _ = json.Marshal(Data{
+				// 			Event:   "301",
+				// 			Message: msg,
+				// 		})
+				// 	}
 
-				hub.Send <- &socket.PersonalMessage{
-					Client:  client,
-					Message: d,
-				}
+				// 	hub.Send <- &PersonalMessage{
+				// 		Client:  client,
+				// 		Message: d,
+				// 	}
 
-				break
+				// 	break
 			}
 
 		}
@@ -198,9 +220,18 @@ func serve() {
 }
 
 // Startup starts process.
-func Startup(gb gamelogic.GameBase) {
+func Startup() {
 	// isGaming = false
 	go hub.Run()
-	go start(gb)
+
+	dice := &gameserver.GameProcess{Hub: hub, GameBase: &gamelogic.DiceGame{}}
+
+	go dice.GameBase.StartGame()
+
+	// dt := &gameserver.GameProcess{Hub: hub, GameBase: &gamelogic.DragonTigerGame{}}
+
+	// go dt.GameBase.StartGame()
+
+	// go start(gb)
 	serve()
 }

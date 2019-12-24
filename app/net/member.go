@@ -1,4 +1,4 @@
-package gameserver
+package net
 
 import (
 	"fmt"

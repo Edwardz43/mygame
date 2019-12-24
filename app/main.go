@@ -5,8 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Edwardz43/mygame/app/config"
-	"github.com/Edwardz43/mygame/app/gamelogic"
-	"github.com/Edwardz43/mygame/app/gameserver"
+	"github.com/Edwardz43/mygame/app/net"
 
 	_ "net/http/pprof"
 )
@@ -20,7 +19,7 @@ func main() {
 	}
 
 	go func() {
-		gameserver.Startup(&gamelogic.DiceGame{})
+		net.Startup()
 	}()
 
 	// go func() {

@@ -26,7 +26,6 @@ const (
 var (
 	newline = []byte{'\n'}
 	space   = []byte{' '}
-	command chan *Data
 )
 
 var upgrader = websocket.Upgrader{
@@ -51,6 +50,13 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+}
+
+func errHandle(err error) {
+	if err == nil {
+		return
+	}
+	// logger.Printf("ERROR : [%v]", err)
 }
 
 // Set init client.

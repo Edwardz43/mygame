@@ -24,13 +24,6 @@ type Hub struct {
 	Unregister chan *Client
 }
 
-func errHandle(err error) {
-	if err == nil {
-		return
-	}
-	// logger.Printf("ERROR : [%v]", err)
-}
-
 // NewHub returns new websocket hub.
 func NewHub() *Hub {
 	return &Hub{

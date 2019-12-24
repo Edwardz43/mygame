@@ -6,18 +6,65 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Edwardz43/mygame/app/lib/log"
+	"github.com/Edwardz43/mygame/app/websocket"
+
 	"github.com/Edwardz43/mygame/app/gamelogic"
-	socket "github.com/Edwardz43/mygame/app/websocket"
+
+	"github.com/Edwardz43/mygame/app/service"
 )
 
-//TODO
+// GameProcess creates a game process instance
+type GameProcess struct {
+	Hub      net.Hub
+	GameBase gamelogic.GameBase
+}
 
-func start(gb gamelogic.GameBase) {
+// GameStatus ...
+type GameStatus int8
 
+const (
+	NewInn GameStatus = iota + 1
+	Showdown
+	Settlement
+	Intermission
+	Maintain
+)
+
+var (
+	gameResultService *service.GameResultService
+	gameResult        *gamelogic.GameResult
+	run               int64
+	inn               int
+	status            int8
+	oldCountdown      int8
+	command           chan *websocket.Data
+	logger            *log.Logger
+	lobbyService      *service.LobbyService
+	gameBase          gamelogic.GameBase
+	hub               *websocket.Hub
+	duration          = time.Second * 20
+	showDownTime      = time.Second * 3
+	settlementTime    = time.Second * 5
+)
+
+func errHandle(err error) {
+	if err == nil {
+		return
+	}
+	logger.Printf("ERROR : [%v]", err)
+}
+
+func init() {
+	logger = log.Create("gameserver")
+	gameResultService = service.GetGameResultInstance()
+	lobbyService = service.GetLobbyInstance()
 	gameResult = new(gamelogic.GameResult)
+}
 
-	gameBase = gb
-	// for {
+// Start starts game process
+func (p *GameProcess) Start() {
+	gameBase = p.GameBase
 	go gameBase.StartGame()
 
 	run, inn, status, oldCountdown, _ = lobbyService.GetLatest(int(gamelogic.Dice))
@@ -87,7 +134,7 @@ func newInn() {
 	gameResult.GameType = gameBase.GetGameID()
 	gameResult.GameDetail = detail
 
-	newRun := socket.Data{
+	newRun := websocket.Data{
 		Event:   "201",
 		Message: fmt.Sprintf("{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%s}", gameBase.GetGameID(), run, inn, duration.String()[0:2]),
 	}
@@ -114,7 +161,7 @@ func newInn() {
 		case <-ticker.C:
 			logger.Printf("countdown : %d", count)
 
-			newRun := socket.Data{
+			newRun := websocket.Data{
 				Event:   "205",
 				Message: fmt.Sprintf("{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%d}", gameBase.GetGameID(), run, inn, count),
 			}
@@ -150,7 +197,7 @@ func showDown() {
 
 	r, err := json.Marshal(gameResult)
 	errHandle(err)
-	data := socket.Data{
+	data := websocket.Data{
 		Event:   "202",
 		Message: string(r),
 	}
@@ -166,7 +213,7 @@ func settlement() {
 
 	lobbyService.Update(int(gameBase.GetGameID()), run, inn, int(Settlement))
 
-	data := socket.Data{
+	data := websocket.Data{
 		Event:   "203",
 		Message: "Settling",
 	}
@@ -183,45 +230,3 @@ func settlement() {
 func intermission() {}
 
 func maintain() {}
-
-func bet(memberID uint, msg string) (string, error) {
-
-	logger.Printf("BETTING ID : [%v], data : [%v]", memberID, msg)
-	// TODO
-
-	var b betOrder
-
-	err := json.Unmarshal([]byte(msg), &b)
-	if err != nil {
-		logger.Println("BETTING fail : json unmarshal")
-		return "", err
-	}
-
-	var distinctID int
-
-	switch b.BetArea {
-	case "big":
-		distinctID = 1
-		break
-	case "small":
-		distinctID = 2
-		break
-	case "odd":
-		distinctID = 3
-		break
-	case "even":
-		distinctID = 4
-		break
-	}
-
-	i, err := bettingService.AddNewOne(int8(b.Game), run, inn, int(memberID), distinctID, b.Amount)
-
-	if err != nil {
-		logger.Println("BETTING fail : BettingService")
-		return "", err
-	}
-
-	logger.Println("BETTING ok")
-	return i, nil
-
-}
