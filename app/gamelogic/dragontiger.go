@@ -7,8 +7,8 @@ import (
 
 // DragonTigerGameDetail ...
 type DragonTigerGameDetail struct {
-	BankerCard string `json:"b_card"`
-	PlayerCard string `json:"p_card"`
+	DragonCard string `json:"d_card"`
+	TigerCard  string `json:"t_card"`
 }
 
 // DragonTigerGame ...
@@ -23,8 +23,8 @@ func (d *DragonTigerGame) StartGame() {
 func (d *DragonTigerGame) NewGame() interface{} {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	detail := DragonTigerGameDetail{
-		BankerCard: Poker[uint8(r.Intn(52))],
-		PlayerCard: Poker[uint8(r.Intn(52))],
+		DragonCard: Poker[uint8(r.Intn(52))],
+		TigerCard:  Poker[uint8(r.Intn(52))],
 	}
 	// logger.Println(detail)
 	return detail

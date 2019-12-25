@@ -44,7 +44,7 @@ var (
 	gameBase          gamelogic.GameBase
 	duration          = time.Second * 20
 	showDownTime      = time.Second * 3
-	settlementTime    = time.Second * 5
+	settlementTime    = time.Second * 3
 )
 
 func errHandle(err error) {
@@ -131,7 +131,7 @@ func (p *GameProcess) newRun() {
 // newInn 新局
 func (p *GameProcess) newInn() {
 
-	detail := gameBase.NewGame()
+	detail := p.GameBase.NewGame()
 
 	lobbyService.Update(int(p.GameBase.GetGameID()), p.run, p.inn, int(NewInn))
 	logger.Printf(fmt.Sprintf("GameID[%d] NewInn: %d", int(gameBase.GetGameID()), p.inn))
@@ -143,7 +143,7 @@ func (p *GameProcess) newInn() {
 
 	newRun := nettool.Data{
 		Event:   "201",
-		Message: fmt.Sprintf("{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%s}", p.GameBase.GetGameID(), p.run, p.inn, duration.String()[0:2]),
+		Message: fmt.Sprintf("{\"game_type\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%s}", p.GameBase.GetGameID(), p.run, p.inn, duration.String()[0:2]),
 	}
 
 	d, err := json.Marshal(newRun)
@@ -170,7 +170,7 @@ func (p *GameProcess) newInn() {
 
 			newRun := nettool.Data{
 				Event:   "205",
-				Message: fmt.Sprintf("{\"game_id\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%d}", p.GameBase.GetGameID(), p.run, p.inn, count),
+				Message: fmt.Sprintf("{\"game_type\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%d}", p.GameBase.GetGameID(), p.run, p.inn, count),
 			}
 
 			d, err := json.Marshal(newRun)
@@ -222,7 +222,7 @@ func (p *GameProcess) settlement() {
 
 	data := nettool.Data{
 		Event:   "203",
-		Message: "Settling",
+		Message: fmt.Sprintf("{\"game_type\":%d}", p.GameBase.GetGameID()),
 	}
 	d, err := json.Marshal(data)
 	errHandle(err)
