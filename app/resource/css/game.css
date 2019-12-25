@@ -22,6 +22,8 @@
     left: 2%;
     padding: 1%;
     border-radius: 10px;
+    float: left;
+    margin-right: 5%;
 }
 
 .result-img{
@@ -36,15 +38,16 @@
     margin: 3% 0;
 }
 
-.title{
-    width: 20%;
+.title{    
+    text-align: left;
     margin: 2% 0;
+    width: 20%;
 }
 
-.main{
-    position: relative;
-    left:40%;    
+.game-title{
+    text-align: center;
 }
+
 
 .info{
     display: inline-block;
@@ -55,13 +58,21 @@
     display: inline-block;
 }
 
-.dice-area {
+.dice-area, .dt-area {
     float: left;
-    width:24%;
     border: 1px solid;
     text-align: center;    
     background-color:rgb(110, 196, 117);
 }
+
+.dice-area{
+    width:24%;
+}
+
+.dt-area {
+    width:48%;
+}
+
 
 .btn-toggle {
     background-color:rgb(39, 99, 43);

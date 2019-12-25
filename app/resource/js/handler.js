@@ -12,6 +12,12 @@ const StatusMap = {
 
 }
 
+const GameID = {
+    1 : "dice",
+    2 : "rullote",
+    3 : "dragontiger"
+}
+
 const COMMAND_CONNECTED = "200",
     COMMAND_NEW_RUN = "201",
     COMMAND_SHOWDOWN = "202",
@@ -24,9 +30,6 @@ const btn_dice_big = document.getElementById("dice-big"),
     btn_dice_odd = document.getElementById("dice-odd"),
     btn_dice_even = document.getElementById("dice-even");
 
-function showStatus(status) {
-    document.querySelector("#status").innerHTML = status;
-}
 
 function bgChange() {
     let count = 1;
@@ -39,15 +42,31 @@ function bgChange() {
 }
 
 function showGameResult(obj) {
-    //console.log(obj)
+    console.log(obj)
     detail = obj.game_detail
-    document.querySelector("#run").innerHTML = obj.run;
-    document.querySelector("#inn").innerHTML = obj.inn;
-    let index = 1;
-    [...document.querySelectorAll(".dice")].forEach(function (Element) {
-        Element.setAttribute("src", "/static/img/game/dice/" + detail["d" + index] + ".jpg");
-        index++;
-    })
+  
+    
+    switch(obj.game_type){
+        case 1:
+            document.querySelector("#dice-run").innerHTML = obj.run;
+            document.querySelector("#dice-inn").innerHTML = obj.inn;
+            [...document.querySelectorAll(".dice")].forEach(function (Element, Index) {
+                Element.setAttribute("src", "/static/img/game/dice/" + detail["d" + (Index + 1)] + ".jpg");
+                Index++;
+            })
+            break;
+        case 3:
+            document.querySelector("#dragontiger-run").innerHTML = obj.run;
+            document.querySelector("#dragontiger-inn").innerHTML = obj.inn;
+            // [...document.querySelectorAll(".dragontiger")].forEach(function (Element, Index) {
+            //     Element.setAttribute("src", "/static/img/game/dragontiger/" + detail["dt" + (Index + 1)] + ".jpg");
+            //     Index++;
+            // })
+            document.getElementById("d_card").setAttribute("src", "/static/img/game/dragontiger/" + detail["d_card"] + ".jpg");
+            document.getElementById("t_card").setAttribute("src", "/static/img/game/dragontiger/" + detail["t_card"] + ".jpg");
+            break;
+    }
+    
 }
 
 function connect() {
@@ -57,9 +76,18 @@ function connect() {
 
     ws.onmessage = (message) => {        
         // handle sticky packets
-        message.data.split('\n').forEach(element => {
-            operation(JSON.parse(element))    
-        })        
+        // console.log(message.data)
+        
+        try{
+            message.data.split('\n').forEach(element => {
+                operation(JSON.parse(element))    
+            })        
+        }
+        catch(e){
+            console.log(e)
+        }
+            
+        
     }
 
     ws.onclose = function (evt) {        
@@ -77,22 +105,22 @@ function connect() {
 function operation(cmd) {
     switch (cmd.event) {
         case COMMAND_CONNECTED:
-            console.log(cmd)
+            // console.log(cmd)
             register();
             setTableStatus(cmd);
             break;
-        case COMMAND_NEW_RUN:
-            showStatus("New Run");
+        case COMMAND_NEW_RUN:            
+            showStatus("New Run", GameID[JSON.parse(cmd.message).game_type]);            
             countdown(cmd);
             // console.log(new Date().toLocaleString() + " New Run")
             break;
         case COMMAND_SHOWDOWN:
-            showStatus("Show Down");
+            showStatus("Show Down", GameID[JSON.parse(cmd.message).game_type]);            
             // console.log(new Date().toLocaleString() + " Show Down")
             showGameResult(JSON.parse(cmd.message));
             break;
         case COMMAND_RESULT:
-            showStatus("Settlement");
+            showStatus("Settlement", GameID[JSON.parse(cmd.message).game_type]);
             // console.log(new Date().toLocaleString() + " Settlement")
             break;
         case COMMAND_COUNTDOWN:
@@ -138,26 +166,32 @@ function init() {
 }
 
 function setTableStatus(data) {
-    let d = JSON.parse(data.message);
-    setGameInfo(d.run, d.inn, d.status, d.countdown)
+    // let d = JSON.parse(data.message);
+    // setGameInfo(d.run, d.inn, d.status, d.countdown)
 
-    let result = d.result;    
-    document.getElementById("d1").setAttribute("src", "/static/img/game/dice/" + result.d1 + ".jpg");
-    document.getElementById("d2").setAttribute("src", "/static/img/game/dice/" + result.d2 + ".jpg");
-    document.getElementById("d3").setAttribute("src", "/static/img/game/dice/" + result.d3 + ".jpg");
+    // let result = d.result;    
+    // document.getElementById("d1").setAttribute("src", "/static/img/game/dice/" + result.d1 + ".jpg");
+    // document.getElementById("d2").setAttribute("src", "/static/img/game/dice/" + result.d2 + ".jpg");
+    // document.getElementById("d3").setAttribute("src", "/static/img/game/dice/" + result.d3 + ".jpg");
 }
 
 function countdown(data) {
+    // console.log(data)
     let d = JSON.parse(data.message);      
-    setGameInfo(d.run, d.inn, 1, d.countdown)
+    setGameInfo(d.game_type, d.run, d.inn, 1, d.countdown)
 }
 
-function setGameInfo(run, inn, status, cd) {
-    document.querySelector("#run").innerHTML = run;
-    document.querySelector("#inn").innerHTML = inn;
-    document.querySelector("#countdown").innerHTML = cd;
-    showStatus(StatusMap[status]);   
+function setGameInfo(game_type, run, inn, status, cd) {
+    document.querySelector("#"+ GameID[game_type] +"-run").innerHTML = run;
+    document.querySelector("#"+ GameID[game_type] +"-inn").innerHTML = inn;
+    document.querySelector("#"+ GameID[game_type] +"-countdown").innerHTML = cd;
+    showStatus(StatusMap[status], GameID[game_type]);   
 }
+
+function showStatus(status, game_type) {
+    document.querySelector("#" + game_type + "-status").innerHTML = status;
+}
+
 
 init();
 connect();
