@@ -23,6 +23,7 @@ type GameProcess struct {
 	inn          int
 	status       int8
 	oldCountdown int8
+	duration     time.Duration
 }
 
 // GameStatus ...
@@ -42,7 +43,6 @@ var (
 	logger            *log.Logger
 	lobbyService      *service.LobbyService
 	gameBase          gamelogic.GameBase
-	duration          = time.Second * 20
 	showDownTime      = time.Second * 3
 	settlementTime    = time.Second * 3
 )
@@ -71,6 +71,13 @@ func (p *GameProcess) Start() {
 
 	gameID := p.GameBase.GetGameID()
 	// logger.Printf("GameID[%d] start", gameID)
+
+	switch gameID {
+	case gamelogic.Dice:
+		p.duration = time.Second * 30
+	case gamelogic.DragonTiger:
+		p.duration = time.Second * 20
+	}
 
 	p.run, p.inn, p.status, p.oldCountdown, _ = lobbyService.GetLatest(int(gameID))
 	logger.Printf(fmt.Sprintf("gameID[%d], run[%d], inn[%d], status[%d], cd[%d]", gameID, p.run, p.inn, p.status, p.oldCountdown))
@@ -143,7 +150,7 @@ func (p *GameProcess) newInn() {
 
 	newRun := nettool.Data{
 		Event:   "201",
-		Message: fmt.Sprintf("{\"game_type\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%s}", p.GameBase.GetGameID(), p.run, p.inn, duration.String()[0:2]),
+		Message: fmt.Sprintf("{\"game_type\":%d,\"run\":%d, \"inn\":%d, \"countdown\":%d}", p.GameBase.GetGameID(), p.run, p.inn, int8(p.duration.Seconds())),
 	}
 
 	d, err := json.Marshal(newRun)
@@ -157,7 +164,7 @@ func (p *GameProcess) newInn() {
 	var count int8
 
 	if p.oldCountdown == 0 {
-		count = 20
+		count = int8(p.duration.Seconds())
 	} else {
 		count = p.oldCountdown
 		p.oldCountdown = 0
