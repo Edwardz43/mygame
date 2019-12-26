@@ -22,7 +22,7 @@ const COMMAND_CONNECTED = "200",
     COMMAND_NEW_RUN = "201",
     COMMAND_SHOWDOWN = "202",
     COMMAND_RESULT = "203",
-    COMMAND_BET = "204";
+    COMMAND_BET = "204",
     COMMAND_COUNTDOWN = "205";
 
 const btn_dice_big = document.getElementById("dice-big"),
