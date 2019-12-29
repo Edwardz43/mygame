@@ -57,11 +57,7 @@ function showGameResult(obj) {
             break;
         case 3:
             document.querySelector("#dragontiger-run").innerHTML = obj.run;
-            document.querySelector("#dragontiger-inn").innerHTML = obj.inn;
-            // [...document.querySelectorAll(".dragontiger")].forEach(function (Element, Index) {
-            //     Element.setAttribute("src", "/static/img/game/dragontiger/" + detail["dt" + (Index + 1)] + ".jpg");
-            //     Index++;
-            // })
+            document.querySelector("#dragontiger-inn").innerHTML = obj.inn;           
             document.getElementById("d_card").setAttribute("src", "/static/img/game/dragontiger/" + detail["d_card"] + ".jpg");
             document.getElementById("t_card").setAttribute("src", "/static/img/game/dragontiger/" + detail["t_card"] + ".jpg");
             break;
@@ -137,10 +133,25 @@ function register() {
 }
 
 
-function bet(game, betArea) {
+function bet(game, run, inn, betArea) {
     console.log("bet")
-    let data = { event: '301', message: '{"game":' + game + ', "bet-area":"' + betArea + '", "amount":100}' }
-    ws.send(JSON.stringify(data))
+    
+    let msg = {
+        game: parseInt(game) ,
+        run: parseInt(run) ,
+        inn: parseInt(inn),
+        bet_area :betArea,
+        amount:100
+    } 
+
+    let data = { 
+        event: '301',
+        message: JSON.stringify(msg)
+    }
+
+    let s = JSON.stringify(data);
+
+    ws.send(s)
 }
 
 function init() {
@@ -159,8 +170,11 @@ function init() {
 
         element.onclick = function (e) {
             // window.e = e.path[0]
-            let data = e.path[0].dataset
-            bet(data.game, data.area);
+            let data = e.path[0].dataset;
+            let game_type = GameID[data.game];            
+            run = document.getElementById(game_type + "-run").innerText;
+            inn = document.getElementById(game_type + "-inn").innerText;
+            bet(data.game,run, inn, data.area);
         }
     })
 }
