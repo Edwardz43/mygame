@@ -22,7 +22,9 @@ type COMMAND int
 // {"game":1, "bet-area":"even", "amount":"100"}
 type betOrder struct {
 	Game    int8   `json:"game"`
-	BetArea string `json:"bet-area"`
+	Run     int64  `json:"run"`
+	Inn     int    `json:"inn"`
+	BetArea string `json:"bet_area"`
 	Amount  int    `json:"amount"`
 }
 
@@ -72,7 +74,7 @@ func errHandle(err error) {
 
 // var addr = flag.String("addr", ":8090", "http service address")
 
-func bet(memberID uint, run int64, inn int, msg string) (string, error) {
+func bet(memberID uint, msg string) (string, error) {
 
 	logger.Printf("BETTING ID : [%v], data : [%v]", memberID, msg)
 	// TODO
@@ -81,7 +83,7 @@ func bet(memberID uint, run int64, inn int, msg string) (string, error) {
 
 	err := json.Unmarshal([]byte(msg), &b)
 	if err != nil {
-		logger.Println("BETTING fail : json unmarshal")
+		logger.Printf("BETTING fail => json unmarshal : [%v]", err)
 		return "", err
 	}
 
@@ -100,9 +102,18 @@ func bet(memberID uint, run int64, inn int, msg string) (string, error) {
 	case "even":
 		distinctID = 4
 		break
+	case "dragon":
+		distinctID = 5
+		break
+	case "tiger":
+		distinctID = 6
+		break
+	case "tie":
+		distinctID = 7
+		break
 	}
 
-	i, err := bettingService.AddNewOne(int8(b.Game), run, inn, int(memberID), distinctID, b.Amount)
+	i, err := bettingService.AddNewOne(int8(b.Game), b.Run, b.Inn, int(memberID), distinctID, b.Amount)
 
 	if err != nil {
 		logger.Println("BETTING fail : BettingService")
@@ -111,7 +122,6 @@ func bet(memberID uint, run int64, inn int, msg string) (string, error) {
 
 	logger.Println("BETTING ok")
 	return i, nil
-
 }
 
 func serveWebsocket(c *gin.Context) {
@@ -163,29 +173,30 @@ func serveWebsocket(c *gin.Context) {
 			case "300": // get table status
 				//TODO
 				break
-				// case "301": // bet
+			case "301": // bet
+				var d []byte
 
-				// 	msg, err := bet(client.MemberID, c.Message)
+				msg, err := bet(client.MemberID, c.Message)
 
-				// 	if err != nil {
-				// 		//TODO
-				// 		d, _ = json.Marshal(Data{
-				// 			Event:   "301",
-				// 			Message: err.Error(),
-				// 		})
-				// 	} else {
-				// 		d, _ = json.Marshal(Data{
-				// 			Event:   "301",
-				// 			Message: msg,
-				// 		})
-				// 	}
+				if err != nil {
+					//TODO
+					d, _ = json.Marshal(nettool.Data{
+						Event:   "301",
+						Message: err.Error(),
+					})
+				} else {
+					d, _ = json.Marshal(nettool.Data{
+						Event:   "301",
+						Message: msg,
+					})
+				}
 
-				// 	hub.Send <- &PersonalMessage{
-				// 		Client:  client,
-				// 		Message: d,
-				// 	}
+				hub.Send <- &nettool.PersonalMessage{
+					Client:  client,
+					Message: d,
+				}
 
-				// 	break
+				break
 			}
 
 		}
