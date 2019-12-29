@@ -14,7 +14,7 @@ const (
 	writeWait = 10 * time.Second
 
 	// Time allowed to read the next pong message from the peer.
-	pongWait = 60 * time.Second
+	pongWait = 10 * time.Second
 
 	// Send pings to peer with this period. Must be less than pongWait.
 	pingPeriod = (pongWait * 9) / 10
@@ -56,7 +56,7 @@ func errHandle(err error) {
 	if err == nil {
 		return
 	}
-	// logger.Printf("ERROR : [%v]", err)
+	log.Printf("ERROR : [%v]", err)
 }
 
 // Set init client.
